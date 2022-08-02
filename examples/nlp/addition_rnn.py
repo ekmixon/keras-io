@@ -76,8 +76,8 @@ class CharacterTable:
             chars: Characters that can appear in the input.
         """
         self.chars = sorted(set(chars))
-        self.char_indices = dict((c, i) for i, c in enumerate(self.chars))
-        self.indices_char = dict((i, c) for i, c in enumerate(self.chars))
+        self.char_indices = {c: i for i, c in enumerate(self.chars)}
+        self.indices_char = dict(enumerate(self.chars))
 
     def encode(self, C, num_rows):
         """One-hot encode given string C.
@@ -116,9 +116,10 @@ while len(questions) < TRAINING_SIZE:
     f = lambda: int(
         "".join(
             np.random.choice(list("0123456789"))
-            for i in range(np.random.randint(1, DIGITS + 1))
+            for _ in range(np.random.randint(1, DIGITS + 1))
         )
     )
+
     a, b = f(), f()
     # Skip any addition questions we've already seen
     # Also skip any such that x+Y == Y+x (hence the sorting).
@@ -127,7 +128,7 @@ while len(questions) < TRAINING_SIZE:
         continue
     seen.add(key)
     # Pad the data with spaces such that it is always MAXLEN.
-    q = "{}+{}".format(a, b)
+    q = f"{a}+{b}"
     query = q + " " * (MAXLEN - len(q))
     ans = str(a + b)
     # Answers can be of maximum size DIGITS + 1.
@@ -224,7 +225,7 @@ for epoch in range(1, epochs):
     )
     # Select 10 samples from the validation set at random so we can visualize
     # errors.
-    for i in range(10):
+    for _ in range(10):
         ind = np.random.randint(0, len(x_val))
         rowx, rowy = x_val[np.array([ind])], y_val[np.array([ind])]
         preds = np.argmax(model.predict(rowx), axis=-1)
@@ -234,9 +235,9 @@ for epoch in range(1, epochs):
         print("Q", q[::-1] if REVERSE else q, end=" ")
         print("T", correct, end=" ")
         if correct == guess:
-            print("☑ " + guess)
+            print(f"☑ {guess}")
         else:
-            print("☒ " + guess)
+            print(f"☒ {guess}")
 
 """
 You'll get to 99+% validation accuracy after ~30 epochs.

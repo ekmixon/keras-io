@@ -181,7 +181,7 @@ def get_training_model(num_classes=10):
     resnet50_v2 = tf.keras.applications.ResNet50V2(
         weights=None, include_top=False, input_shape=(CROP_TO, CROP_TO, 3),
     )
-    model = tf.keras.Sequential(
+    return tf.keras.Sequential(
         [
             layers.Input((CROP_TO, CROP_TO, 3)),
             layers.Rescaling(scale=1.0 / 127.5, offset=-1),
@@ -190,7 +190,6 @@ def get_training_model(num_classes=10):
             layers.Dense(num_classes),
         ]
     )
-    return model
 
 
 """
@@ -300,7 +299,7 @@ class SelfTrainer(tf.keras.Model):
 
         # Return a dict of performance
         results = {m.name: m.result() for m in self.metrics}
-        results.update({"total_loss": total_loss})
+        results["total_loss"] = total_loss
         return results
 
     def test_step(self, data):
@@ -313,9 +312,7 @@ class SelfTrainer(tf.keras.Model):
         # Update the metrics
         self.compiled_metrics.update_state(y, tf.nn.softmax(y_prediction, axis=1))
 
-        # Return a dict of performance
-        results = {m.name: m.result() for m in self.metrics}
-        return results
+        return {m.name: m.result() for m in self.metrics}
 
 
 """

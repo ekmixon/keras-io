@@ -6,6 +6,7 @@ Last modified: 2021/01/30
 Description: Implementation of a dual encoder model for retrieving images that match natural language queries.
 """
 
+
 """
 ## Introduction
 
@@ -101,7 +102,10 @@ with open(annotation_file, "r") as f:
 image_path_to_caption = collections.defaultdict(list)
 for element in annotations:
     caption = f"{element['caption'].lower().rstrip('.')}"
-    image_path = images_dir + "/COCO_train2014_" + "%012d.jpg" % (element["image_id"])
+    image_path = f"{images_dir}/COCO_train2014_" + "%012d.jpg" % (
+        element["image_id"]
+    )
+
     image_path_to_caption[image_path].append(caption)
 
 image_paths = list(image_path_to_caption.keys())
@@ -556,11 +560,10 @@ def compute_top_k_accuracy(image_paths, k=100):
         ]
         result = find_matches(image_embeddings, queries, k)
         hits += sum(
-            [
-                image_path in matches
-                for (image_path, matches) in list(zip(current_image_paths, result))
-            ]
+            image_path in matches
+            for (image_path, matches) in list(zip(current_image_paths, result))
         )
+
 
     return hits / len(image_paths)
 

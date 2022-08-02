@@ -89,8 +89,8 @@ x_train, y_train = create_shifted_frames(train_dataset)
 x_val, y_val = create_shifted_frames(val_dataset)
 
 # Inspect the dataset.
-print("Training Dataset Shapes: " + str(x_train.shape) + ", " + str(y_train.shape))
-print("Validation Dataset Shapes: " + str(x_val.shape) + ", " + str(y_val.shape))
+print(f"Training Dataset Shapes: {str(x_train.shape)}, {str(y_train.shape)}")
+print(f"Validation Dataset Shapes: {str(x_val.shape)}, {str(y_val.shape)}")
 
 """
 ## Data Visualization

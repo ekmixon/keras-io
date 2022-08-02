@@ -5,6 +5,7 @@ Date created: 2020/06/04
 Last modified: 2020/09/21
 Description: Implementing DDPG algorithm on the Inverted Pendulum Problem.
 """
+
 """
 ## Introduction
 
@@ -74,15 +75,15 @@ problem = "Pendulum-v0"
 env = gym.make(problem)
 
 num_states = env.observation_space.shape[0]
-print("Size of State Space ->  {}".format(num_states))
+print(f"Size of State Space ->  {num_states}")
 num_actions = env.action_space.shape[0]
-print("Size of Action Space ->  {}".format(num_actions))
+print(f"Size of Action Space ->  {num_actions}")
 
 upper_bound = env.action_space.high[0]
 lower_bound = env.action_space.low[0]
 
-print("Max Value of Action ->  {}".format(upper_bound))
-print("Min Value of Action ->  {}".format(lower_bound))
+print(f"Max Value of Action ->  {upper_bound}")
+print(f"Min Value of Action ->  {lower_bound}")
 
 """
 To implement better exploration by the Actor network, we use noisy perturbations,
@@ -253,8 +254,7 @@ def get_actor():
 
     # Our upper bound is 2.0 for Pendulum.
     outputs = outputs * upper_bound
-    model = tf.keras.Model(inputs, outputs)
-    return model
+    return tf.keras.Model(inputs, outputs)
 
 
 def get_critic():
@@ -274,10 +274,7 @@ def get_critic():
     out = layers.Dense(256, activation="relu")(out)
     outputs = layers.Dense(1)(out)
 
-    # Outputs single value for give state-action
-    model = tf.keras.Model([state_input, action_input], outputs)
-
-    return model
+    return tf.keras.Model([state_input, action_input], outputs)
 
 
 """
@@ -302,8 +299,9 @@ def policy(state, noise_object):
 ## Training hyperparameters
 """
 
+
 std_dev = 0.2
-ou_noise = OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.ones(1))
+ou_noise = OUActionNoise(mean=np.zeros(1), std_deviation=std_dev * np.ones(1))
 
 actor_model = get_actor()
 critic_model = get_critic()
@@ -375,7 +373,7 @@ for ep in range(total_episodes):
 
     # Mean of last 40 episodes
     avg_reward = np.mean(ep_reward_list[-40:])
-    print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
+    print(f"Episode * {ep} * Avg Reward is ==> {avg_reward}")
     avg_reward_list.append(avg_reward)
 
 # Plotting graph

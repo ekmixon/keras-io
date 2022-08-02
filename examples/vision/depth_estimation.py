@@ -6,6 +6,7 @@ Last modified: 2021/08/30
 Description: Implement a depth estimation model with a convnet.
 """
 
+
 """
 ## Introduction
 
@@ -69,9 +70,7 @@ path = "val/indoors"
 filelist = []
 
 for root, dirs, files in os.walk(path):
-    for file in files:
-        filelist.append(os.path.join(root, file))
-
+    filelist.extend(os.path.join(root, file) for file in files)
 filelist.sort()
 data = {
     "image": [x for x in filelist if x.endswith(".png")],
@@ -377,13 +376,11 @@ class DepthEstimationModel(tf.keras.Model):
         # Point-wise depth
         l1_loss = tf.reduce_mean(tf.abs(target - pred))
 
-        loss = (
+        return (
             (self.ssim_loss_weight * ssim_loss)
             + (self.l1_loss_weight * l1_loss)
             + (self.edge_loss_weight * depth_smoothness_loss)
         )
-
-        return loss
 
     @property
     def metrics(self):

@@ -132,12 +132,12 @@ FEATURE_NAMES = [
 
 
 def create_model_inputs():
-    inputs = {}
-    for feature_name in FEATURE_NAMES:
-        inputs[feature_name] = layers.Input(
+    return {
+        feature_name: layers.Input(
             name=feature_name, shape=(1,), dtype=tf.float32
         )
-    return inputs
+        for feature_name in FEATURE_NAMES
+    }
 
 
 """
@@ -159,8 +159,7 @@ def create_baseline_model():
     # The output is deterministic: a single point estimate.
     outputs = layers.Dense(units=1)(features)
 
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """
@@ -220,7 +219,7 @@ and the training process is to learn the parameters of these distributions.
 # as we fix its parameters.
 def prior(kernel_size, bias_size, dtype=None):
     n = kernel_size + bias_size
-    prior_model = keras.Sequential(
+    return keras.Sequential(
         [
             tfp.layers.DistributionLambda(
                 lambda t: tfp.distributions.MultivariateNormalDiag(
@@ -229,7 +228,6 @@ def prior(kernel_size, bias_size, dtype=None):
             )
         ]
     )
-    return prior_model
 
 
 # Define variational posterior weight distribution as multivariate Gaussian.
@@ -237,7 +235,7 @@ def prior(kernel_size, bias_size, dtype=None):
 # variances, and covariances.
 def posterior(kernel_size, bias_size, dtype=None):
     n = kernel_size + bias_size
-    posterior_model = keras.Sequential(
+    return keras.Sequential(
         [
             tfp.layers.VariableLayer(
                 tfp.layers.MultivariateNormalTriL.params_size(n), dtype=dtype
@@ -245,7 +243,6 @@ def posterior(kernel_size, bias_size, dtype=None):
             tfp.layers.MultivariateNormalTriL(n),
         ]
     )
-    return posterior_model
 
 
 """
@@ -271,8 +268,7 @@ def create_bnn_model(train_size):
 
     # The output is deterministic: a single point estimate.
     outputs = layers.Dense(units=1)(features)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """
@@ -304,9 +300,7 @@ see in the outputs of the same inputs.
 
 
 def compute_predictions(model, iterations=100):
-    predicted = []
-    for _ in range(iterations):
-        predicted.append(model(examples).numpy())
+    predicted = [model(examples).numpy() for _ in range(iterations)]
     predicted = np.concatenate(predicted, axis=1)
 
     prediction_mean = np.mean(predicted, axis=1).tolist()
@@ -380,8 +374,7 @@ def create_probablistic_bnn_model(train_size):
     distribution_params = layers.Dense(units=2)(features)
     outputs = tfp.layers.IndependentNormal(1)(distribution_params)
 
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """

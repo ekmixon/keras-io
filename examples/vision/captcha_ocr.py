@@ -6,6 +6,7 @@ Last modified: 2020/06/26
 Description: How to implement an OCR model using CNNs, RNNs and CTC loss.
 """
 
+
 """
 ## Introduction
 
@@ -61,7 +62,7 @@ data_dir = Path("./captcha_images_v2/")
 # Get list of all the images
 images = sorted(list(map(str, list(data_dir.glob("*.png")))))
 labels = [img.split(os.path.sep)[-1].split(".png")[0] for img in images]
-characters = set(char for label in labels for char in label)
+characters = {char for label in labels for char in label}
 
 print("Number of images found: ", len(images))
 print("Number of labels found: ", len(labels))
@@ -83,7 +84,7 @@ img_height = 50
 downsample_factor = 4
 
 # Maximum length of any captcha in the dataset
-max_length = max([len(label) for label in labels])
+max_length = max(len(label) for label in labels)
 
 
 """

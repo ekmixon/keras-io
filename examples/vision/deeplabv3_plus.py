@@ -156,8 +156,7 @@ def DilatedSpatialPyramidPooling(dspp_input):
     out_18 = convolution_block(dspp_input, kernel_size=3, dilation_rate=18)
 
     x = layers.Concatenate(axis=-1)([out_pool, out_1, out_6, out_12, out_18])
-    output = convolution_block(x, kernel_size=1)
-    return output
+    return convolution_block(x, kernel_size=1)
 
 
 """
@@ -269,20 +268,18 @@ def decode_segmentation_masks(mask, colormap, n_classes):
     r = np.zeros_like(mask).astype(np.uint8)
     g = np.zeros_like(mask).astype(np.uint8)
     b = np.zeros_like(mask).astype(np.uint8)
-    for l in range(0, n_classes):
+    for l in range(n_classes):
         idx = mask == l
         r[idx] = colormap[l, 0]
         g[idx] = colormap[l, 1]
         b[idx] = colormap[l, 2]
-    rgb = np.stack([r, g, b], axis=2)
-    return rgb
+    return np.stack([r, g, b], axis=2)
 
 
 def get_overlay(image, colored_mask):
     image = tf.keras.preprocessing.image.array_to_img(image)
     image = np.array(image).astype(np.uint8)
-    overlay = cv2.addWeighted(image, 0.35, colored_mask, 0.65, 0)
-    return overlay
+    return cv2.addWeighted(image, 0.35, colored_mask, 0.65, 0)
 
 
 def plot_samples_matplotlib(display_list, figsize=(5, 3)):

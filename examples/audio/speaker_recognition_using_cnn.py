@@ -5,6 +5,7 @@ Date created: 14/06/2020
 Last modified: 03/07/2020
 Description: Classify speakers using Fast Fourier Transform (FFT) and a 1D Convnet.
 """
+
 """
 ## Introduction
 
@@ -178,18 +179,23 @@ for subdir in os.listdir(DATASET_NOISE_PATH):
         ]
 
 print(
-    "Found {} files belonging to {} directories".format(
-        len(noise_paths), len(os.listdir(DATASET_NOISE_PATH))
-    )
+    f"Found {len(noise_paths)} files belonging to {len(os.listdir(DATASET_NOISE_PATH))} directories"
 )
+
 
 """
 Resample all noise samples to 16000 Hz
 """
 
 command = (
-    "for dir in `ls -1 " + DATASET_NOISE_PATH + "`; do "
-    "for file in `ls -1 " + DATASET_NOISE_PATH + "/$dir/*.wav`; do "
+    (
+        (
+            f"for dir in `ls -1 {DATASET_NOISE_PATH}" + "`; do "
+            "for file in `ls -1 "
+        )
+        + DATASET_NOISE_PATH
+    )
+    + "/$dir/*.wav`; do "
     "sample_rate=`ffprobe -hide_banner -loglevel panic -show_streams "
     "$file | grep sample_rate | cut -f2 -d=`; "
     "if [ $sample_rate -ne 16000 ]; then "
@@ -198,6 +204,7 @@ command = (
     "mv temp.wav $file; "
     "fi; done; done"
 )
+
 os.system(command)
 
 # Split noise into chunks of 16,000 steps each
@@ -211,22 +218,20 @@ def load_noise_sample(path):
         sample = tf.split(sample[: slices * SAMPLING_RATE], slices)
         return sample
     else:
-        print("Sampling rate for {} is incorrect. Ignoring it".format(path))
+        print(f"Sampling rate for {path} is incorrect. Ignoring it")
         return None
 
 
 noises = []
 for path in noise_paths:
-    sample = load_noise_sample(path)
-    if sample:
+    if sample := load_noise_sample(path):
         noises.extend(sample)
 noises = tf.stack(noises)
 
 print(
-    "{} noise files were split into {} noise samples where each is {} sec. long".format(
-        len(noise_paths), noises.shape[0], noises.shape[1] // SAMPLING_RATE
-    )
+    f"{len(noise_paths)} noise files were split into {noises.shape[0]} noise samples where each is {noises.shape[1] // SAMPLING_RATE} sec. long"
 )
+
 
 """
 ## Dataset generation
@@ -285,12 +290,12 @@ def audio_to_fft(audio):
 # Get the list of audio file paths along with their corresponding labels
 
 class_names = os.listdir(DATASET_AUDIO_PATH)
-print("Our class names: {}".format(class_names,))
+print(f"Our class names: {class_names}")
 
 audio_paths = []
 labels = []
 for label, name in enumerate(class_names):
-    print("Processing speaker {}".format(name,))
+    print(f"Processing speaker {name}")
     dir_path = Path(DATASET_AUDIO_PATH) / name
     speaker_sample_paths = [
         os.path.join(dir_path, filepath)
@@ -301,8 +306,9 @@ for label, name in enumerate(class_names):
     labels += [label] * len(speaker_sample_paths)
 
 print(
-    "Found {} files belonging to {} classes.".format(len(audio_paths), len(class_names))
+    f"Found {len(audio_paths)} files belonging to {len(class_names)} classes."
 )
+
 
 # Shuffle
 rng = np.random.RandomState(SHUFFLE_SEED)
@@ -312,11 +318,11 @@ rng.shuffle(labels)
 
 # Split into training and validation
 num_val_samples = int(VALID_SPLIT * len(audio_paths))
-print("Using {} files for training.".format(len(audio_paths) - num_val_samples))
+print(f"Using {len(audio_paths) - num_val_samples} files for training.")
 train_audio_paths = audio_paths[:-num_val_samples]
 train_labels = labels[:-num_val_samples]
 
-print("Using {} files for validation.".format(num_val_samples))
+print(f"Using {num_val_samples} files for validation.")
 valid_audio_paths = audio_paths[-num_val_samples:]
 valid_labels = labels[-num_val_samples:]
 
@@ -355,7 +361,7 @@ valid_ds = valid_ds.prefetch(tf.data.AUTOTUNE)
 def residual_block(x, filters, conv_num=3, activation="relu"):
     # Shortcut
     s = keras.layers.Conv1D(filters, 1, padding="same")(x)
-    for i in range(conv_num - 1):
+    for _ in range(conv_num - 1):
         x = keras.layers.Conv1D(filters, 3, padding="same")(x)
         x = keras.layers.Activation(activation)(x)
     x = keras.layers.Conv1D(filters, 3, padding="same")(x)
@@ -458,11 +464,7 @@ for audios, labels in test_ds.take(1):
         # For every sample, print the true and predicted label
         # as well as run the voice with the noise
         print(
-            "Speaker:\33{} {}\33[0m\tPredicted:\33{} {}\33[0m".format(
-                "[92m" if labels[index] == y_pred[index] else "[91m",
-                class_names[labels[index]],
-                "[92m" if labels[index] == y_pred[index] else "[91m",
-                class_names[y_pred[index]],
-            )
+            f'Speaker:\33{"[92m" if labels[index] == y_pred[index] else "[91m"} {class_names[labels[index]]}\33[0m\tPredicted:\33{"[92m" if labels[index] == y_pred[index] else "[91m"} {class_names[y_pred[index]]}\33[0m'
         )
+
         display(Audio(audios[index, :, :].squeeze(), rate=SAMPLING_RATE))

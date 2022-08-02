@@ -5,6 +5,7 @@ Date created: 2021/08/08
 Last modified: 2021/08/15
 Description: Training a multimodal model for predicting entailment.
 """
+
 """
 ## Introduction
 
@@ -120,8 +121,8 @@ for idx in range(len(df)):
     extentsion_one = current_row["image_1"].split(".")[-1]
     extentsion_two = current_row["image_2"].split(".")[-1]
 
-    image_one_path = os.path.join(image_base_path, str(id_1) + f".{extentsion_one}")
-    image_two_path = os.path.join(image_base_path, str(id_2) + f".{extentsion_two}")
+    image_one_path = os.path.join(image_base_path, f"{str(id_1)}.{extentsion_one}")
+    image_two_path = os.path.join(image_base_path, f"{str(id_2)}.{extentsion_two}")
 
     images_one_paths.append(image_one_path)
     images_two_paths.append(image_two_path)

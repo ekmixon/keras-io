@@ -430,10 +430,7 @@ class CustomLayer(keras.layers.Layer):
         self.var = tf.Variable(a, name="var_a")
 
     def call(self, inputs, training=False):
-        if training:
-            return inputs * self.var
-        else:
-            return inputs
+        return inputs * self.var if training else inputs
 
     def get_config(self):
         return {"a": self.var.numpy()}
@@ -873,13 +870,13 @@ class NestedDenseLayer(keras.layers.Layer):
 
 nested_model = keras.Sequential([keras.Input((784,)), NestedDenseLayer(10, "nested")])
 variable_names = [v.name for v in nested_model.weights]
-print("variables: {}".format(variable_names))
+print(f"variables: {variable_names}")
 
 print("\nChanging trainable status of one of the nested layers...")
 nested_model.get_layer("nested").dense_1.trainable = False
 
 variable_names_2 = [v.name for v in nested_model.weights]
-print("\nvariables: {}".format(variable_names_2))
+print(f"\nvariables: {variable_names_2}")
 print("variable ordering changed:", variable_names != variable_names_2)
 
 """

@@ -110,7 +110,7 @@ to read frames from videos.
 
 
 def crop_center_square(frame):
-    y, x = frame.shape[0:2]
+    y, x = frame.shape[:2]
     min_dim = min(y, x)
     start_x = (x // 2) - (min_dim // 2)
     start_y = (y // 2) - (min_dim // 2)

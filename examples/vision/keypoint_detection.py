@@ -280,12 +280,11 @@ class KeyPointsDataset(keras.utils.Sequence):
         for i, key in enumerate(image_keys_temp):
             data = get_dog(key)
             current_keypoint = np.array(data["joints"])[:, :2]
-            kps = []
+            kps = [
+                Keypoint(x=current_keypoint[j][0], y=current_keypoint[j][1])
+                for j in range(len(current_keypoint))
+            ]
 
-            # To apply our data augmentation pipeline, we first need to
-            # form Keypoint objects with the original coordinates.
-            for j in range(0, len(current_keypoint)):
-                kps.append(Keypoint(x=current_keypoint[j][0], y=current_keypoint[j][1]))
 
             # We then project the original image and its keypoint coordinates.
             current_image = data["img_data"]
@@ -298,9 +297,7 @@ class KeyPointsDataset(keras.utils.Sequence):
             # Parse the coordinates from the new keypoint object.
             kp_temp = []
             for keypoint in new_kps_obj:
-                kp_temp.append(np.nan_to_num(keypoint.x))
-                kp_temp.append(np.nan_to_num(keypoint.y))
-
+                kp_temp.extend((np.nan_to_num(keypoint.x), np.nan_to_num(keypoint.y)))
             # More on why this reshaping later.
             batch_keypoints[i,] = np.array(kp_temp).reshape(1, 1, 24 * 2)
 

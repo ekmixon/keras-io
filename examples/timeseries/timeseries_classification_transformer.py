@@ -35,8 +35,8 @@ def readucr(filename):
 
 root_url = "https://raw.githubusercontent.com/hfawaz/cd-diagram/master/FordA/"
 
-x_train, y_train = readucr(root_url + "FordA_TRAIN.tsv")
-x_test, y_test = readucr(root_url + "FordA_TEST.tsv")
+x_train, y_train = readucr(f"{root_url}FordA_TRAIN.tsv")
+x_test, y_test = readucr(f"{root_url}FordA_TEST.tsv")
 
 x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], 1))
 x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))

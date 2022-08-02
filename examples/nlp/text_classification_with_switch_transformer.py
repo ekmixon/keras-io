@@ -118,13 +118,9 @@ def load_balanced_loss(router_probs, expert_mask):
     # Get fraction of probability mass assigned to each expert from the router
     # across all tokens. density_proxy is a vector of length num experts that sums to 1.
     density_proxy = tf.reduce_mean(router_probs, axis=0)
-    # Want both vectors to have uniform allocation (1/num experts) across all
-    # num_expert elements. The two vectors will be pushed towards uniform allocation
-    # when the dot product is minimized.
-    loss = tf.reduce_mean(density_proxy * density) * tf.cast(
-        (num_experts ** 2), tf.dtypes.float32
+    return tf.reduce_mean(density_proxy * density) * tf.cast(
+        (num_experts**2), tf.dtypes.float32
     )
-    return loss
 
 
 """
@@ -234,12 +230,10 @@ class Switch(layers.Layer):
         expert_outputs_combined = tf.einsum(
             "abc,xba->xc", expert_outputs, combine_tensor
         )
-        # output shape: [batch_size, num_tokens_per_example, embed_dim]
-        outputs = tf.reshape(
+        return tf.reshape(
             expert_outputs_combined,
             [batch_size, num_tokens_per_example, self.embed_dim],
         )
-        return outputs
 
 
 """
@@ -293,8 +287,7 @@ def create_classifier():
     x = layers.Dropout(dropout_rate)(x)
     outputs = layers.Dense(2, activation="softmax")(x)
 
-    classifier = keras.Model(inputs=inputs, outputs=outputs)
-    return classifier
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """
@@ -308,14 +301,13 @@ def run_experiment(classifier):
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
-    history = classifier.fit(
+    return classifier.fit(
         x_train,
         y_train,
         batch_size=batch_size,
         epochs=num_epochs,
         validation_data=(x_val, y_val),
     )
-    return history
 
 
 classifier = create_classifier()

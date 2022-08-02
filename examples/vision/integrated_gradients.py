@@ -104,8 +104,7 @@ def get_gradients(img_input, top_pred_idx):
         preds = model(images)
         top_class = preds[:, top_pred_idx]
 
-    grads = tape.gradient(top_class, images)
-    return grads
+    return tape.gradient(top_class, images)
 
 
 def get_integrated_gradients(img_input, top_pred_idx, baseline=None, num_steps=50):
@@ -143,7 +142,7 @@ def get_integrated_gradients(img_input, top_pred_idx, baseline=None, num_steps=5
 
     # 3. Get the gradients
     grads = []
-    for i, img in enumerate(interpolated_image):
+    for img in interpolated_image:
         img = tf.expand_dims(img, axis=0)
         grad = get_gradients(img, top_pred_idx=top_pred_idx)
         grads.append(grad[0])
@@ -153,9 +152,7 @@ def get_integrated_gradients(img_input, top_pred_idx, baseline=None, num_steps=5
     grads = (grads[:-1] + grads[1:]) / 2.0
     avg_grads = tf.reduce_mean(grads, axis=0)
 
-    # 5. Calculate integrated gradients and return
-    integrated_grads = (img_input - baseline) * avg_grads
-    return integrated_grads
+    return (img_input - baseline) * avg_grads
 
 
 def random_baseline_integrated_gradients(
@@ -179,7 +176,7 @@ def random_baseline_integrated_gradients(
     integrated_grads = []
 
     # 2. Get the integrated gradients for all the baselines
-    for run in range(num_runs):
+    for _ in range(num_runs):
         baseline = np.random.random(img_size) * 255
         igrads = get_integrated_gradients(
             img_input=img_input,
@@ -279,8 +276,7 @@ class GradVisualizer:
 
     def morphological_cleanup_fn(self, attributions, structure=np.ones((4, 4))):
         closed = ndimage.grey_closing(attributions, structure=structure)
-        opened = ndimage.grey_opening(closed, structure=structure)
-        return opened
+        return ndimage.grey_opening(closed, structure=structure)
 
     def draw_outlines(
         self, attributions, percentage=90, connected_component_structure=np.ones((3, 3))
@@ -310,9 +306,7 @@ class GradVisualizer:
         cumulative_sorted_sums = np.cumsum(sorted_sums)
         cutoff_threshold = percentage * total / 100
         cutoff_idx = np.where(cumulative_sorted_sums >= cutoff_threshold)[0][0]
-        if cutoff_idx > 2:
-            cutoff_idx = 2
-
+        cutoff_idx = min(cutoff_idx, 2)
         # 6. Set the values for the kept components
         border_mask = np.zeros_like(attributions)
         for i in range(cutoff_idx + 1):

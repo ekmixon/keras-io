@@ -137,11 +137,7 @@ def hash_func(embedding, random_vectors):
 
 
 def bool2int(x):
-    y = 0
-    for i, j in enumerate(x):
-        if j:
-            y += 1 << i
-    return y
+    return sum(1 << i for i, j in enumerate(x) if j)
 
 
 """
@@ -187,7 +183,7 @@ class Table:
 
     def add(self, id, vectors, label):
         # Create a unique indentifier.
-        entry = {"id_label": str(id) + "_" + str(label)}
+        entry = {"id_label": f"{str(id)}_{str(label)}"}
 
         # Compute the hash values.
         hashes = hash_func(vectors, self.random_vectors)
@@ -220,9 +216,7 @@ In the following `LSH` class we will pack the utilities to have multiple hash ta
 class LSH:
     def __init__(self, hash_size, dim, num_tables):
         self.num_tables = num_tables
-        self.tables = []
-        for i in range(self.num_tables):
-            self.tables.append(Table(hash_size, dim))
+        self.tables = [Table(hash_size, dim) for _ in range(self.num_tables)]
 
     def add(self, id, vectors, label):
         for table in self.tables:
@@ -444,9 +438,9 @@ def plot_images(images, labels):
     for (i, image) in enumerate(images):
         ax = plt.subplot(len(images) / columns + 1, columns, i + 1)
         if i == 0:
-            ax.set_title("Query Image\n" + "Label: {}".format(labels[i]))
+            ax.set_title("Query Image\n" + f"Label: {labels[i]}")
         else:
-            ax.set_title("Similar Image # " + str(i) + "\nLabel: {}".format(labels[i]))
+            ax.set_title(f"Similar Image # {str(i)}" + f"\nLabel: {labels[i]}")
         plt.imshow(image.astype("int"))
         plt.axis("off")
 

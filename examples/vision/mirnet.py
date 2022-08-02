@@ -193,8 +193,7 @@ def selective_kernel_feature_fusion(
     feature_1 = multi_scale_feature_1 * feature_descriptor_1
     feature_2 = multi_scale_feature_2 * feature_descriptor_2
     feature_3 = multi_scale_feature_3 * feature_descriptor_3
-    aggregated_feature = layers.Add()([feature_1, feature_2, feature_3])
-    return aggregated_feature
+    return layers.Add()([feature_1, feature_2, feature_3])
 
 
 """

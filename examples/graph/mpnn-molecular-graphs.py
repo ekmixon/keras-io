@@ -456,10 +456,7 @@ class EdgeNetwork(layers.Layer):
         # Apply neighborhood aggregation
         transformed_features = tf.matmul(bond_features, atom_features_neighbors)
         transformed_features = tf.squeeze(transformed_features, axis=-1)
-        aggregated_features = tf.math.segment_sum(
-            transformed_features, pair_indices[:, 0]
-        )
-        return aggregated_features
+        return tf.math.segment_sum(transformed_features, pair_indices[:, 0])
 
 
 class MessagePassing(layers.Layer):
@@ -482,7 +479,7 @@ class MessagePassing(layers.Layer):
         atom_features_updated = tf.pad(atom_features, [(0, 0), (0, self.pad_length)])
 
         # Perform a number of steps of message passing
-        for i in range(self.steps):
+        for _ in range(self.steps):
             # Aggregate atom_features from neighbors
             atom_features_aggregated = self.message_step(
                 [atom_features_updated, bond_features, pair_indices]
@@ -604,11 +601,15 @@ def MPNNModel(
     x = layers.Dense(dense_units, activation="relu")(x)
     x = layers.Dense(1, activation="sigmoid")(x)
 
-    model = keras.Model(
-        inputs=[atom_features, bond_features, pair_indices, atom_partition_indices],
+    return keras.Model(
+        inputs=[
+            atom_features,
+            bond_features,
+            pair_indices,
+            atom_partition_indices,
+        ],
         outputs=[x],
     )
-    return model
 
 
 mpnn = MPNNModel(

@@ -5,6 +5,7 @@ Date created: 2020/05/24
 Last modified: 2020/05/24
 Description: Recommending movies using a model trained on Movielens dataset.
 """
+
 """
 ## Introduction
 
@@ -70,10 +71,10 @@ First, need to perform some preprocessing to encode users and movies as integer 
 """
 user_ids = df["userId"].unique().tolist()
 user2user_encoded = {x: i for i, x in enumerate(user_ids)}
-userencoded2user = {i: x for i, x in enumerate(user_ids)}
+userencoded2user = dict(enumerate(user_ids))
 movie_ids = df["movieId"].unique().tolist()
 movie2movie_encoded = {x: i for i, x in enumerate(movie_ids)}
-movie_encoded2movie = {i: x for i, x in enumerate(movie_ids)}
+movie_encoded2movie = dict(enumerate(movie_ids))
 df["user"] = df["userId"].map(user2user_encoded)
 df["movie"] = df["movieId"].map(movie2movie_encoded)
 
@@ -85,10 +86,9 @@ min_rating = min(df["rating"])
 max_rating = max(df["rating"])
 
 print(
-    "Number of users: {}, Number of Movies: {}, Min rating: {}, Max rating: {}".format(
-        num_users, num_movies, min_rating, max_rating
-    )
+    f"Number of users: {num_users}, Number of Movies: {num_movies}, Min rating: {min_rating}, Max rating: {max_rating}"
 )
+
 
 """
 ## Prepare training and validation data
@@ -205,7 +205,7 @@ recommended_movie_ids = [
     movie_encoded2movie.get(movies_not_watched[x][0]) for x in top_ratings_indices
 ]
 
-print("Showing recommendations for user: {}".format(user_id))
+print(f"Showing recommendations for user: {user_id}")
 print("====" * 9)
 print("Movies with high ratings from user")
 print("----" * 8)

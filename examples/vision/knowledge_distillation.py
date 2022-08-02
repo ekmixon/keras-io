@@ -120,12 +120,10 @@ class Distiller(keras.Model):
         # Update the metrics configured in `compile()`.
         self.compiled_metrics.update_state(y, student_predictions)
 
-        # Return a dict of performance
-        results = {m.name: m.result() for m in self.metrics}
-        results.update(
-            {"student_loss": student_loss, "distillation_loss": distillation_loss}
-        )
-        return results
+        return {m.name: m.result() for m in self.metrics} | {
+            "student_loss": student_loss,
+            "distillation_loss": distillation_loss,
+        }
 
     def test_step(self, data):
         # Unpack the data
@@ -142,7 +140,7 @@ class Distiller(keras.Model):
 
         # Return a dict of performance
         results = {m.name: m.result() for m in self.metrics}
-        results.update({"student_loss": student_loss})
+        results["student_loss"] = student_loss
         return results
 
 

@@ -171,7 +171,7 @@ def make_tag_lookup_table():
     all_labels = [(label1, label2) for label2 in ner_labels for label1 in iob_labels]
     all_labels = ["-".join([a, b]) for a, b in all_labels]
     all_labels = ["[PAD]", "O"] + all_labels
-    return dict(zip(range(0, len(all_labels) + 1), all_labels))
+    return dict(zip(range(len(all_labels) + 1), all_labels))
 
 
 mapping = make_tag_lookup_table()

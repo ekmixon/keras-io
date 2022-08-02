@@ -90,7 +90,7 @@ def parse_dataset(num_points=2048):
     folders = glob.glob(os.path.join(DATA_DIR, "[!README]*"))
 
     for i, folder in enumerate(folders):
-        print("processing class: {}".format(os.path.basename(folder)))
+        print(f"processing class: {os.path.basename(folder)}")
         # store folder name with ID so we can retrieve later
         class_map[i] = folder.split("/")[-1]
         # gather all files

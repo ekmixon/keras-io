@@ -162,12 +162,7 @@ def strong_augment(image, source=True):
 
 
 def create_individual_ds(ds, aug_func, source=True):
-    if source:
-        batch_size = SOURCE_BATCH_SIZE
-    else:
-        # During training 3x more target unlabeled samples are shown
-        # to the model in AdaMatch (Section 3.2 of the paper).
-        batch_size = TARGET_BATCH_SIZE
+    batch_size = SOURCE_BATCH_SIZE if source else TARGET_BATCH_SIZE
     ds = ds.shuffle(batch_size * 10, seed=42)
 
     if source:
@@ -415,28 +410,18 @@ def wide_basic(x, n_input_plane, n_output_plane, stride):
             else:
                 convs = layers.BatchNormalization()(x)
                 convs = layers.Activation("relu")(convs)
-            convs = layers.Conv2D(
-                n_bottleneck_plane,
-                (v[0], v[1]),
-                strides=v[2],
-                padding=v[3],
-                kernel_initializer=INIT,
-                kernel_regularizer=regularizers.l2(WEIGHT_DECAY),
-                use_bias=False,
-            )(convs)
         else:
             convs = layers.BatchNormalization()(convs)
             convs = layers.Activation("relu")(convs)
-            convs = layers.Conv2D(
-                n_bottleneck_plane,
-                (v[0], v[1]),
-                strides=v[2],
-                padding=v[3],
-                kernel_initializer=INIT,
-                kernel_regularizer=regularizers.l2(WEIGHT_DECAY),
-                use_bias=False,
-            )(convs)
-
+        convs = layers.Conv2D(
+            n_bottleneck_plane,
+            (v[0], v[1]),
+            strides=v[2],
+            padding=v[3],
+            kernel_initializer=INIT,
+            kernel_regularizer=regularizers.l2(WEIGHT_DECAY),
+            use_bias=False,
+        )(convs)
     # Shortcut connection: identity function or 1x1
     # convolutional
     #  (depends on difference between input & output shape - this
@@ -462,7 +447,7 @@ def wide_basic(x, n_input_plane, n_output_plane, stride):
 # Stacking residual units on the same stage
 def block_series(x, n_input_plane, n_output_plane, count, stride):
     x = wide_basic(x, n_input_plane, n_output_plane, stride)
-    for i in range(2, int(count + 1)):
+    for _ in range(2, int(count + 1)):
         x = wide_basic(x, n_output_plane, n_output_plane, stride=1)
     return x
 

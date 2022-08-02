@@ -293,8 +293,7 @@ def get_model():
     inputs = keras.Input(shape=(784,))
     intermediate = layers.Dense(256, activation="relu")(inputs)
     outputs = layers.Dense(10, activation="softmax")(intermediate)
-    model = MyModel(inputs, outputs)
-    return model
+    return MyModel(inputs, outputs)
 
 
 # Prepare data

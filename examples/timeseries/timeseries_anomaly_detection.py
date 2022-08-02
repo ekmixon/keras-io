@@ -106,9 +106,11 @@ TIME_STEPS = 288
 
 # Generated training sequences for use in the model.
 def create_sequences(values, time_steps=TIME_STEPS):
-    output = []
-    for i in range(len(values) - time_steps + 1):
-        output.append(values[i : (i + time_steps)])
+    output = [
+        values[i : (i + time_steps)]
+        for i in range(len(values) - time_steps + 1)
+    ]
+
     return np.stack(output)
 
 
@@ -272,10 +274,11 @@ All except the initial and the final time_steps-1 data values, will appear in
 """
 
 # data i is an anomaly if samples [(i - timesteps + 1) to (i)] are anomalies
-anomalous_data_indices = []
-for data_idx in range(TIME_STEPS - 1, len(df_test_value) - TIME_STEPS + 1):
-    if np.all(anomalies[data_idx - TIME_STEPS + 1 : data_idx]):
-        anomalous_data_indices.append(data_idx)
+anomalous_data_indices = [
+    data_idx
+    for data_idx in range(TIME_STEPS - 1, len(df_test_value) - TIME_STEPS + 1)
+    if np.all(anomalies[data_idx - TIME_STEPS + 1 : data_idx])
+]
 
 """
 Let's overlay the anomalies on the original test data plot.

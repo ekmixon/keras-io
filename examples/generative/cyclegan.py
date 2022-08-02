@@ -294,7 +294,7 @@ def get_resnet_generator(
     gamma_initializer=gamma_init,
     name=None,
 ):
-    img_input = layers.Input(shape=input_img_size, name=name + "_img_input")
+    img_input = layers.Input(shape=input_img_size, name=f"{name}_img_input")
     x = ReflectionPadding2D(padding=(3, 3))(img_input)
     x = layers.Conv2D(filters, (7, 7), kernel_initializer=kernel_init, use_bias=False)(
         x
@@ -321,8 +321,7 @@ def get_resnet_generator(
     x = layers.Conv2D(3, (7, 7), padding="valid")(x)
     x = layers.Activation("tanh")(x)
 
-    model = keras.models.Model(img_input, x, name=name)
-    return model
+    return keras.models.Model(img_input, x, name=name)
 
 
 """
@@ -336,7 +335,7 @@ The discriminators implement the following architecture:
 def get_discriminator(
     filters=64, kernel_initializer=kernel_init, num_downsampling=3, name=None
 ):
-    img_input = layers.Input(shape=input_img_size, name=name + "_img_input")
+    img_input = layers.Input(shape=input_img_size, name=f"{name}_img_input")
     x = layers.Conv2D(
         filters,
         (4, 4),
@@ -370,8 +369,7 @@ def get_discriminator(
         1, (4, 4), strides=(1, 1), padding="same", kernel_initializer=kernel_initializer
     )(x)
 
-    model = keras.models.Model(inputs=img_input, outputs=x, name=name)
-    return model
+    return keras.models.Model(inputs=img_input, outputs=x, name=name)
 
 
 # Get the generators
@@ -572,8 +570,7 @@ adv_loss_fn = keras.losses.MeanSquaredError()
 
 # Define the loss function for the generators
 def generator_loss_fn(fake):
-    fake_loss = adv_loss_fn(tf.ones_like(fake), fake)
-    return fake_loss
+    return adv_loss_fn(tf.ones_like(fake), fake)
 
 
 # Define the loss function for the discriminators

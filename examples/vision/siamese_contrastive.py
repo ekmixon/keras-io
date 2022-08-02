@@ -208,17 +208,13 @@ def visualize(pairs, labels, to_show=6, num_col=3, predictions=None, test=False)
     for i in range(to_show):
 
         # If the number of rows is 1, the axes array is one-dimensional
-        if num_row == 1:
-            ax = axes[i % num_col]
-        else:
-            ax = axes[i // num_col, i % num_col]
-
+        ax = axes[i % num_col] if num_row == 1 else axes[i // num_col, i % num_col]
         ax.imshow(tf.concat([pairs[i][0], pairs[i][1]], axis=1), cmap="gray")
         ax.set_axis_off()
         if test:
             ax.set_title("True: {} | Pred: {:.5f}".format(labels[i], predictions[i][0]))
         else:
-            ax.set_title("Label: {}".format(labels[i]))
+            ax.set_title(f"Label: {labels[i]}")
     if test:
         plt.tight_layout(rect=(0, 0, 1.9, 1.9), w_pad=0.0)
     else:
@@ -377,7 +373,7 @@ def plt_metric(history, metric, title, has_valid=True):
     """
     plt.plot(history[metric])
     if has_valid:
-        plt.plot(history["val_" + metric])
+        plt.plot(history[f"val_{metric}"])
         plt.legend(["train", "validation"], loc="upper left")
     plt.title(title)
     plt.ylabel(metric)

@@ -92,12 +92,11 @@ class LogReg(keras.Model):
         # Note that all inputs should be in the first argument
         # since we want to be able to call `model.fit(inputs)`.
         logits = self.dense(inputs["inputs"])
-        preds = self.logistic_endpoint(
+        return self.logistic_endpoint(
             logits=logits,
             targets=inputs["targets"],
             sample_weight=inputs["sample_weight"],
         )
-        return preds
 
 
 model = LogReg()

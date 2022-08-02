@@ -134,9 +134,10 @@ def show_raw_visualization(data):
         ax = t_data.plot(
             ax=axes[i // 2, i % 2],
             color=c,
-            title="{} - {}".format(titles[i], key),
+            title=f"{titles[i]} - {key}",
             rot=25,
         )
+
         ax.legend([titles[i]])
     plt.tight_layout()
 
@@ -209,6 +210,7 @@ We can see from the correlation heatmap, few parameters like Relative Humidity a
 Specific Humidity are redundant. Hence we will be using select features, not all.
 """
 
+
 print(
     "The selected parameters are:",
     ", ".join([titles[i] for i in [0, 1, 5, 7, 8, 10, 11]]),
@@ -222,7 +224,7 @@ features = normalize(features.values, train_split)
 features = pd.DataFrame(features)
 features.head()
 
-train_data = features.loc[0 : train_split - 1]
+train_data = features.loc[:train_split - 1]
 val_data = features.loc[train_split:]
 
 """
@@ -234,7 +236,7 @@ The training dataset labels starts from the 792nd observation (720 + 72).
 start = past + future
 end = start + train_split
 
-x_train = train_data[[i for i in range(7)]].values
+x_train = train_data[list(range(7))].values
 y_train = features.iloc[start:end][[1]]
 
 sequence_length = int(past / step)
@@ -268,7 +270,7 @@ x_end = len(val_data) - past - future
 
 label_start = train_split + past + future
 
-x_val = val_data.iloc[:x_end][[i for i in range(7)]].values
+x_val = val_data.iloc[:x_end][list(range(7))].values
 y_val = features.iloc[label_start:][[1]]
 
 dataset_val = keras.preprocessing.timeseries_dataset_from_array(
@@ -356,11 +358,7 @@ def show_plot(plot_data, delta, title):
     labels = ["History", "True Future", "Model Prediction"]
     marker = [".-", "rx", "go"]
     time_steps = list(range(-(plot_data[0].shape[0]), 0))
-    if delta:
-        future = delta
-    else:
-        future = 0
-
+    future = delta or 0
     plt.title(title)
     for i, val in enumerate(plot_data):
         if i:

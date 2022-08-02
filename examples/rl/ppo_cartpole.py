@@ -142,10 +142,9 @@ def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 def logprobabilities(logits, a):
     # Compute the log-probabilities of taking actions a by using the logits (i.e. the output of the actor)
     logprobabilities_all = tf.nn.log_softmax(logits)
-    logprobability = tf.reduce_sum(
+    return tf.reduce_sum(
         tf.one_hot(a, num_actions) * logprobabilities_all, axis=1
     )
-    return logprobability
 
 
 # Sample action from actor

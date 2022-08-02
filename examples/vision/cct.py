@@ -141,13 +141,14 @@ class CCTTokenizer(layers.Layer):
 
     def call(self, images):
         outputs = self.conv_model(images)
-        # After passing the images through our mini-network the spatial dimensions
-        # are flattened to form sequences.
-        reshaped = tf.reshape(
+        return tf.reshape(
             outputs,
-            (-1, tf.shape(outputs)[1] * tf.shape(outputs)[2], tf.shape(outputs)[-1]),
+            (
+                -1,
+                tf.shape(outputs)[1] * tf.shape(outputs)[2],
+                tf.shape(outputs)[-1],
+            ),
         )
-        return reshaped
 
     def positional_embedding(self, image_size):
         # Positional embeddings are optional in CCT. Here, we calculate
@@ -261,7 +262,7 @@ def create_cct_model(
         encoded_patches += position_embeddings
 
     # Calculate Stochastic Depth probabilities.
-    dpr = [x for x in np.linspace(0, stochastic_depth_rate, transformer_layers)]
+    dpr = list(np.linspace(0, stochastic_depth_rate, transformer_layers))
 
     # Create multiple layers of the Transformer block.
     for i in range(transformer_layers):
@@ -297,9 +298,7 @@ def create_cct_model(
 
     # Classify outputs.
     logits = layers.Dense(num_classes)(weighted_representation)
-    # Create the Keras model.
-    model = keras.Model(inputs=inputs, outputs=logits)
-    return model
+    return keras.Model(inputs=inputs, outputs=logits)
 
 
 """

@@ -309,14 +309,13 @@ ReLU as the non-linearity.
 
 
 def make_model():
-    shallow_mlp_model = keras.Sequential(
+    return keras.Sequential(
         [
             layers.Dense(512, activation="relu"),
             layers.Dense(256, activation="relu"),
             layers.Dense(lookup.vocabulary_size(), activation="sigmoid"),
         ]  # More on why "sigmoid" has been used here in a moment.
     )
-    return shallow_mlp_model
 
 
 """
@@ -350,7 +349,7 @@ def plot_result(item):
     plt.plot(history.history["val_" + item], label="val_" + item)
     plt.xlabel("Epochs")
     plt.ylabel(item)
-    plt.title("Train and Validation {} Over Epochs".format(item), fontsize=14)
+    plt.title(f"Train and Validation {item} Over Epochs", fontsize=14)
     plt.legend()
     plt.grid()
     plt.show()
@@ -402,7 +401,7 @@ for i, text in enumerate(text_batch[:5]):
     label = label_batch[i].numpy()[None, ...]
     print(f"Abstract: {text[0]}")
     print(f"Label(s): {invert_multi_hot(label[0])}")
-    predicted_proba = [proba for proba in predicted_probabilities[i]]
+    predicted_proba = list(predicted_probabilities[i])
     top_3_labels = [
         x
         for _, x in sorted(
@@ -411,7 +410,7 @@ for i, text in enumerate(text_batch[:5]):
             reverse=True,
         )
     ][:3]
-    print(f"Predicted Label(s): ({', '.join([label for label in top_3_labels])})")
+    print(f"Predicted Label(s): ({', '.join(list(top_3_labels))})")
     print(" ")
 
 """

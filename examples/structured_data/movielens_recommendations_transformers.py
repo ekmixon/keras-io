@@ -403,8 +403,9 @@ def encode_input_features(
     movie_embedding_encoder = layers.Embedding(
         input_dim=len(movie_vocabulary),
         output_dim=movie_embedding_dims,
-        name=f"movie_embedding",
+        name="movie_embedding",
     )
+
     # Create a vector lookup for movie genres.
     genre_vectors = movies[genres].to_numpy()
     movie_genres_lookup = layers.Embedding(
@@ -519,8 +520,7 @@ def create_model():
         features = layers.Dropout(dropout_rate)(features)
 
     outputs = layers.Dense(units=1)(features)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 model = create_model()

@@ -147,7 +147,7 @@ for i in range(9):
 
 
 def create_encoder(representation_dim):
-    encoder = keras.Sequential(
+    return keras.Sequential(
         [
             keras.applications.ResNet50V2(
                 include_top=False, weights=None, pooling="avg"
@@ -155,7 +155,6 @@ def create_encoder(representation_dim):
             layers.Dense(representation_dim),
         ]
     )
-    return encoder
 
 
 """
@@ -219,9 +218,10 @@ class RepresentationLearner(keras.Model):
         # Preprocess the input images.
         preprocessed = data_preprocessing(inputs)
         # Create augmented versions of the images.
-        augmented = []
-        for _ in range(self.num_augmentations):
-            augmented.append(data_augmentation(preprocessed))
+        augmented = [
+            data_augmentation(preprocessed) for _ in range(self.num_augmentations)
+        ]
+
         augmented = layers.Concatenate(axis=0)(augmented)
         # Generate embedding representations of the images.
         features = self.encoder(augmented)
@@ -395,9 +395,7 @@ class ClustersEntropyLoss(keras.losses.Loss):
         entropy = -tf.math.reduce_sum(
             cluster_probabilities * tf.math.log(cluster_probabilities)
         )
-        # Compute the difference between the target and the actual.
-        loss = target - entropy
-        return loss
+        return target - entropy
 
 
 """
@@ -419,9 +417,7 @@ def create_clustering_model(encoder, num_clusters, name=None):
     features = encoder(augmented)
     # Assign the images to clusters.
     outputs = layers.Dense(units=num_clusters, activation="softmax")(features)
-    # Create the model.
-    model = keras.Model(inputs=inputs, outputs=outputs, name=name)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs, name=name)
 
 
 """
@@ -438,10 +434,11 @@ its `neighbours`. This output is fed to the `ClustersConsistencyLoss`.
 def create_clustering_learner(clustering_model):
     anchor = keras.Input(shape=input_shape, name="anchors")
     neighbours = keras.Input(
-        shape=tuple([k_neighbours]) + input_shape, name="neighbours"
+        shape=(k_neighbours,) + input_shape, name="neighbours"
     )
+
     # Changes neighbours shape to [batch_size * k_neighbours, width, height, channels]
-    neighbours_reshaped = tf.reshape(neighbours, shape=tuple([-1]) + input_shape)
+    neighbours_reshaped = tf.reshape(neighbours, shape=(-1, ) + input_shape)
     # anchor_clustering shape: [batch_size, num_clusters]
     anchor_clustering = clustering_model(anchor)
     # neighbours_clustering shape: [batch_size * k_neighbours, num_clusters]
@@ -459,18 +456,17 @@ def create_clustering_learner(clustering_model):
     similarity = layers.Lambda(lambda x: tf.squeeze(x, axis=1), name="similarity")(
         similarity
     )
-    # Create the model.
-    model = keras.Model(
+    return keras.Model(
         inputs=[anchor, neighbours],
         outputs=[similarity, anchor_clustering],
         name="clustering_learner",
     )
-    return model
 
 
 """
 ### Train model
 """
+
 
 # If tune_encoder_during_clustering is set to False,
 # then freeze the encoder weights.
@@ -562,7 +558,7 @@ Then, we compute the accuracy of each cluster by dividing the number of image wi
 majority label by the size of the cluster.
 """
 
-cluster_label_counts = dict()
+cluster_label_counts = {}
 
 for c in range(num_clusters):
     cluster_label_counts[c] = [0] * num_classes

@@ -158,9 +158,11 @@ for i, (image, label) in enumerate(zip(sample_images[:9], sample_labels[:9])):
 
 
 def get_training_model():
-    model = tf.keras.Sequential(
+    return tf.keras.Sequential(
         [
-            layers.Conv2D(16, (5, 5), activation="relu", input_shape=(28, 28, 1)),
+            layers.Conv2D(
+                16, (5, 5), activation="relu", input_shape=(28, 28, 1)
+            ),
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Conv2D(32, (5, 5), activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
@@ -170,7 +172,6 @@ def get_training_model():
             layers.Dense(10, activation="softmax"),
         ]
     )
-    return model
 
 
 """

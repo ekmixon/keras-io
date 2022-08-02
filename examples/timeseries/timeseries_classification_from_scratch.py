@@ -54,8 +54,8 @@ def readucr(filename):
 
 root_url = "https://raw.githubusercontent.com/hfawaz/cd-diagram/master/FordA/"
 
-x_train, y_train = readucr(root_url + "FordA_TRAIN.tsv")
-x_test, y_test = readucr(root_url + "FordA_TEST.tsv")
+x_train, y_train = readucr(f"{root_url}FordA_TRAIN.tsv")
+x_test, y_test = readucr(f"{root_url}FordA_TEST.tsv")
 
 """
 ## Visualize the data
@@ -69,7 +69,7 @@ classes = np.unique(np.concatenate((y_train, y_test), axis=0))
 plt.figure()
 for c in classes:
     c_x_train = x_train[y_train == c]
-    plt.plot(c_x_train[0], label="class " + str(c))
+    plt.plot(c_x_train[0], label=f"class {str(c)}")
 plt.legend(loc="best")
 plt.show()
 plt.close()
@@ -208,8 +208,8 @@ print("Test loss", test_loss)
 metric = "sparse_categorical_accuracy"
 plt.figure()
 plt.plot(history.history[metric])
-plt.plot(history.history["val_" + metric])
-plt.title("model " + metric)
+plt.plot(history.history[f"val_{metric}"])
+plt.title(f"model {metric}")
 plt.ylabel(metric, fontsize="large")
 plt.xlabel("epoch", fontsize="large")
 plt.legend(["train", "val"], loc="best")

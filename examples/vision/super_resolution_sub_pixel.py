@@ -241,7 +241,7 @@ def plot_results(img, prefix, title):
 
     # Make the line.
     mark_inset(ax, axins, loc1=1, loc2=3, fc="none", ec="blue")
-    plt.savefig(str(prefix) + "-" + title + ".png")
+    plt.savefig(f"{str(prefix)}-{title}.png")
     plt.show()
 
 
@@ -272,10 +272,9 @@ def upscale_image(model, img):
     out_img_y = PIL.Image.fromarray(np.uint8(out_img_y), mode="L")
     out_img_cb = cb.resize(out_img_y.size, PIL.Image.BICUBIC)
     out_img_cr = cr.resize(out_img_y.size, PIL.Image.BICUBIC)
-    out_img = PIL.Image.merge("YCbCr", (out_img_y, out_img_cb, out_img_cr)).convert(
-        "RGB"
-    )
-    return out_img
+    return PIL.Image.merge(
+        "YCbCr", (out_img_y, out_img_cb, out_img_cr)
+    ).convert("RGB")
 
 
 """
@@ -300,7 +299,7 @@ class ESPCNCallback(keras.callbacks.Callback):
         print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
         if epoch % 20 == 0:
             prediction = upscale_image(self.model, self.test_img)
-            plot_results(prediction, "epoch-" + str(epoch), "prediction")
+            plot_results(prediction, f"epoch-{str(epoch)}", "prediction")
 
     def on_test_batch_end(self, batch, logs=None):
         self.psnr.append(10 * math.log10(1 / logs["loss"]))

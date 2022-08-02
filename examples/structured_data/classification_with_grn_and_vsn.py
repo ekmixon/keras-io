@@ -212,7 +212,7 @@ def process(features, target):
 
 def get_dataset_from_csv(csv_file_path, shuffle=False, batch_size=128):
 
-    dataset = tf.data.experimental.make_csv_dataset(
+    return tf.data.experimental.make_csv_dataset(
         csv_file_path,
         batch_size=batch_size,
         column_names=CSV_HEADER,
@@ -223,8 +223,6 @@ def get_dataset_from_csv(csv_file_path, shuffle=False, batch_size=128):
         shuffle=shuffle,
     ).map(process)
 
-    return dataset
-
 
 """
 ## Create model inputs
@@ -232,17 +230,14 @@ def get_dataset_from_csv(csv_file_path, shuffle=False, batch_size=128):
 
 
 def create_model_inputs():
-    inputs = {}
-    for feature_name in FEATURE_NAMES:
-        if feature_name in NUMERIC_FEATURE_NAMES:
-            inputs[feature_name] = layers.Input(
-                name=feature_name, shape=(), dtype=tf.float32
-            )
-        else:
-            inputs[feature_name] = layers.Input(
-                name=feature_name, shape=(), dtype=tf.string
-            )
-    return inputs
+    return {
+        feature_name: layers.Input(
+            name=feature_name, shape=(), dtype=tf.float32
+        )
+        if feature_name in NUMERIC_FEATURE_NAMES
+        else layers.Input(name=feature_name, shape=(), dtype=tf.string)
+        for feature_name in FEATURE_NAMES
+    }
 
 
 """
@@ -355,9 +350,9 @@ number of the input features.
 class VariableSelection(layers.Layer):
     def __init__(self, num_features, units, dropout_rate):
         super(VariableSelection, self).__init__()
-        self.grns = list()
+        self.grns = []
         # Create a GRN for each feature independently
-        for idx in range(num_features):
+        for _ in range(num_features):
             grn = GatedResidualNetwork(units, dropout_rate)
             self.grns.append(grn)
         # Create a GRN for the concatenation of all the features
@@ -369,13 +364,10 @@ class VariableSelection(layers.Layer):
         v = self.grn_concat(v)
         v = tf.expand_dims(self.softmax(v), axis=-1)
 
-        x = []
-        for idx, input in enumerate(inputs):
-            x.append(self.grns[idx](input))
+        x = [self.grns[idx](input) for idx, input in enumerate(inputs)]
         x = tf.stack(x, axis=1)
 
-        outputs = tf.squeeze(tf.matmul(v, x, transpose_a=True), axis=1)
-        return outputs
+        return tf.squeeze(tf.matmul(v, x, transpose_a=True), axis=1)
 
 
 """
@@ -393,8 +385,7 @@ def create_model(encoding_size):
     )
 
     outputs = layers.Dense(units=1, activation="sigmoid")(features)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """

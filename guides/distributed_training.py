@@ -157,7 +157,7 @@ def get_dataset():
 
 # Create a MirroredStrategy.
 strategy = tf.distribute.MirroredStrategy()
-print("Number of devices: {}".format(strategy.num_replicas_in_sync))
+print(f"Number of devices: {strategy.num_replicas_in_sync}")
 
 # Open a strategy scope.
 with strategy.scope():
@@ -194,10 +194,9 @@ if not os.path.exists(checkpoint_dir):
 
 
 def make_or_restore_model():
-    # Either restore the latest model, or create a fresh one
-    # if there is no checkpoint available.
-    checkpoints = [checkpoint_dir + "/" + name for name in os.listdir(checkpoint_dir)]
-    if checkpoints:
+    if checkpoints := [
+        f"{checkpoint_dir}/{name}" for name in os.listdir(checkpoint_dir)
+    ]:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print("Restoring from", latest_checkpoint)
         return keras.models.load_model(latest_checkpoint)

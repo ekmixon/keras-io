@@ -103,7 +103,7 @@ def visualize_filter(filter_index):
     iterations = 30
     learning_rate = 10.0
     img = initialize_image()
-    for iteration in range(iterations):
+    for _ in range(iterations):
         loss, img = gradient_ascent_step(img, filter_index, learning_rate)
 
     # Decode the resulting input image

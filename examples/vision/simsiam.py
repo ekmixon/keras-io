@@ -118,10 +118,7 @@ def color_drop(x):
 
 
 def random_apply(func, x, p):
-    if tf.random.uniform([], minval=0, maxval=1) < p:
-        return func(x)
-    else:
-        return x
+    return func(x) if tf.random.uniform([], minval=0, maxval=1) < p else x
 
 
 def custom_augment(image):
@@ -235,7 +232,7 @@ def get_encoder():
 
 
 def get_predictor():
-    model = tf.keras.Sequential(
+    return tf.keras.Sequential(
         [
             # Note the AutoEncoder-like structure.
             layers.Input((PROJECT_DIM,)),
@@ -250,7 +247,6 @@ def get_predictor():
         ],
         name="predictor",
     )
-    return model
 
 
 """

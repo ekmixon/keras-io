@@ -117,7 +117,7 @@ class RealNVP(keras.Model):
             [[0, 1], [1, 0]] * (num_coupling_layers // 2), dtype="float32"
         )
         self.loss_tracker = keras.metrics.Mean(name="loss")
-        self.layers_list = [Coupling(2) for i in range(num_coupling_layers)]
+        self.layers_list = [Coupling(2) for _ in range(num_coupling_layers)]
 
     @property
     def metrics(self):
@@ -131,9 +131,7 @@ class RealNVP(keras.Model):
 
     def call(self, x, training=True):
         log_det_inv = 0
-        direction = 1
-        if training:
-            direction = -1
+        direction = -1 if training else 1
         for i in range(self.num_coupling_layers)[::direction]:
             x_masked = x * self.masks[i]
             reversed_mask = 1 - self.masks[i]

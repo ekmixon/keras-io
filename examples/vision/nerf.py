@@ -205,8 +205,7 @@ def encode_position(x):
     """
     positions = [x]
     for i in range(POS_ENCODE_DIMS):
-        for fn in [tf.sin, tf.cos]:
-            positions.append(fn(2.0 ** i * x))
+        positions.extend(fn(2.0 ** i * x) for fn in [tf.sin, tf.cos])
     return tf.concat(positions, axis=-1)
 
 
@@ -401,10 +400,7 @@ def render_rgb_depth(model, rays_flat, t_vals, rand=True, train=True):
         Tuple of rgb image and depth map.
     """
     # Get the predictions from the nerf model and reshape it.
-    if train:
-        predictions = model(rays_flat)
-    else:
-        predictions = model.predict(rays_flat)
+    predictions = model(rays_flat) if train else model.predict(rays_flat)
     predictions = tf.reshape(predictions, shape=(BATCH_SIZE, H, W, NUM_SAMPLES, 4))
 
     # Slice the predictions into rgb and sigma.
@@ -572,9 +568,7 @@ model.fit(
 def create_gif(path_to_images, name_gif):
     filenames = glob.glob(path_to_images)
     filenames = sorted(filenames)
-    images = []
-    for filename in tqdm(filenames):
-        images.append(imageio.imread(filename))
+    images = [imageio.imread(filename) for filename in tqdm(filenames)]
     kargs = {"duration": 0.25}
     imageio.mimsave(name_gif, images, "GIF", **kargs)
 

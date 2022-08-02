@@ -5,6 +5,7 @@ Date created: 2020/07/28
 Last modified: 2020/08/24
 Description: Medical image classification on TPU.
 """
+
 """
 ## Introduction + Set-up
 
@@ -70,7 +71,7 @@ COUNT_NORMAL = len(
         if "NORMAL" in filename.numpy().decode("utf-8")
     ]
 )
-print("Normal images count in training set: " + str(COUNT_NORMAL))
+print(f"Normal images count in training set: {COUNT_NORMAL}")
 
 COUNT_PNEUMONIA = len(
     [
@@ -79,7 +80,7 @@ COUNT_PNEUMONIA = len(
         if "PNEUMONIA" in filename.numpy().decode("utf-8")
     ]
 )
-print("Pneumonia images count in training set: " + str(COUNT_PNEUMONIA))
+print(f"Pneumonia images count in training set: {COUNT_PNEUMONIA}")
 
 """
 Notice that there are way more images that are classified as pneumonia than normal. This
@@ -166,11 +167,7 @@ def prepare_for_training(ds, cache=True):
     # use `.cache(filename)` to cache preprocessing work for datasets that don't
     # fit in memory.
     if cache:
-        if isinstance(cache, str):
-            ds = ds.cache(cache)
-        else:
-            ds = ds.cache()
-
+        ds = ds.cache(cache) if isinstance(cache, str) else ds.cache()
     ds = ds.batch(BATCH_SIZE)
 
     # `prefetch` lets the dataset fetch batches in the background while the model
@@ -232,17 +229,13 @@ def conv_block(filters, inputs):
     x = layers.SeparableConv2D(filters, 3, activation="relu", padding="same")(inputs)
     x = layers.SeparableConv2D(filters, 3, activation="relu", padding="same")(x)
     x = layers.BatchNormalization()(x)
-    outputs = layers.MaxPool2D()(x)
-
-    return outputs
+    return layers.MaxPool2D()(x)
 
 
 def dense_block(units, dropout_rate, inputs):
     x = layers.Dense(units, activation="relu")(inputs)
     x = layers.BatchNormalization()(x)
-    outputs = layers.Dropout(dropout_rate)(x)
-
-    return outputs
+    return layers.Dropout(dropout_rate)(x)
 
 
 """
@@ -281,8 +274,7 @@ def build_model():
 
     outputs = layers.Dense(1, activation="sigmoid")(x)
 
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """
@@ -291,6 +283,7 @@ def build_model():
 We saw earlier in this example that the data was imbalanced, with more images classified
 as pneumonia than normal. We will correct for that by using class weighting:
 """
+
 
 initial_bias = np.log([COUNT_PNEUMONIA / COUNT_NORMAL])
 print("Initial bias: {:.5f}".format(initial_bias[0]))
@@ -397,7 +390,7 @@ ax = ax.ravel()
 for i, met in enumerate(["precision", "recall", "binary_accuracy", "loss"]):
     ax[i].plot(history.history[met])
     ax[i].plot(history.history["val_" + met])
-    ax[i].set_title("Model {}".format(met))
+    ax[i].set_title(f"Model {met}")
     ax[i].set_xlabel("epochs")
     ax[i].set_ylabel(met)
     ax[i].legend(["train", "val"])

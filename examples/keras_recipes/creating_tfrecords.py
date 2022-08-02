@@ -244,7 +244,7 @@ def prepare_sample(features):
 
 
 def get_dataset(filenames, batch_size):
-    dataset = (
+    return (
         tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTOTUNE)
         .map(parse_tfrecord_fn, num_parallel_calls=AUTOTUNE)
         .map(prepare_sample, num_parallel_calls=AUTOTUNE)
@@ -252,7 +252,6 @@ def get_dataset(filenames, batch_size):
         .batch(batch_size)
         .prefetch(AUTOTUNE)
     )
-    return dataset
 
 
 train_filenames = tf.io.gfile.glob(f"{tfrecords_dir}/*.tfrec")

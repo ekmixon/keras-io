@@ -150,6 +150,7 @@ def process_scan(path):
 Let's read the paths of the CT scans from the class directories.
 """
 
+
 # Folder "CT-0" consist of CT scans having normal lung tissue,
 # no CT-signs of viral pneumonia.
 normal_scan_paths = [
@@ -163,8 +164,8 @@ abnormal_scan_paths = [
     for x in os.listdir("MosMedData/CT-23")
 ]
 
-print("CT scans with normal lung tissue: " + str(len(normal_scan_paths)))
-print("CT scans with abnormal lung tissue: " + str(len(abnormal_scan_paths)))
+print(f"CT scans with normal lung tissue: {len(normal_scan_paths)}")
+print(f"CT scans with abnormal lung tissue: {len(abnormal_scan_paths)}")
 
 
 """
@@ -352,9 +353,7 @@ def get_model(width=128, height=128, depth=64):
 
     outputs = layers.Dense(units=1, activation="sigmoid")(x)
 
-    # Define the model.
-    model = keras.Model(inputs, outputs, name="3dcnn")
-    return model
+    return keras.Model(inputs, outputs, name="3dcnn")
 
 
 # Build model.
@@ -414,8 +413,8 @@ ax = ax.ravel()
 
 for i, metric in enumerate(["acc", "loss"]):
     ax[i].plot(model.history.history[metric])
-    ax[i].plot(model.history.history["val_" + metric])
-    ax[i].set_title("Model {}".format(metric))
+    ax[i].plot(model.history.history[f"val_{metric}"])
+    ax[i].set_title(f"Model {metric}")
     ax[i].set_xlabel("epochs")
     ax[i].set_ylabel(metric)
     ax[i].legend(["train", "val"])

@@ -108,8 +108,7 @@ def window_partition(x, window_size):
         x, shape=(-1, patch_num_y, window_size, patch_num_x, window_size, channels)
     )
     x = tf.transpose(x, (0, 1, 3, 2, 4, 5))
-    windows = tf.reshape(x, shape=(-1, window_size, window_size, channels))
-    return windows
+    return tf.reshape(x, shape=(-1, window_size, window_size, channels))
 
 
 def window_reverse(windows, window_size, height, width, channels):
@@ -136,8 +135,7 @@ class DropPath(layers.Layer):
         shape = (batch_size,) + (1,) * (rank - 1)
         random_tensor = (1 - self.drop_prob) + tf.random.uniform(shape, dtype=x.dtype)
         path_mask = tf.floor(random_tensor)
-        output = tf.math.divide(x, 1 - self.drop_prob) * path_mask
-        return output
+        return tf.math.divide(x, 1 - self.drop_prob) * path_mask
 
 
 """
@@ -224,9 +222,7 @@ class WindowAttention(layers.Layer):
                 + mask_float
             )
             attn = tf.reshape(attn, shape=(-1, self.num_heads, size, size))
-            attn = keras.activations.softmax(attn, axis=-1)
-        else:
-            attn = keras.activations.softmax(attn, axis=-1)
+        attn = keras.activations.softmax(attn, axis=-1)
         attn = self.dropout(attn)
 
         x_qkv = attn @ v

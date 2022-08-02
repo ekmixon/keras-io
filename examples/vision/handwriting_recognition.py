@@ -104,7 +104,7 @@ base_image_path = os.path.join(base_path, "words")
 def get_image_paths_and_labels(samples):
     paths = []
     corrected_samples = []
-    for (i, file_line) in enumerate(samples):
+    for file_line in samples:
         line_split = file_line.strip()
         line_split = line_split.split(" ")
 
@@ -114,8 +114,9 @@ def get_image_paths_and_labels(samples):
         partI = image_name.split("-")[0]
         partII = image_name.split("-")[1]
         img_path = os.path.join(
-            base_image_path, partI, partI + "-" + partII, image_name + ".png"
+            base_image_path, partI, f"{partI}-{partII}", f"{image_name}.png"
         )
+
         if os.path.getsize(img_path):
             paths.append(img_path)
             corrected_samples.append(file_line.split("\n")[0])

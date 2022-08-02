@@ -186,9 +186,7 @@ def encode_numerical_feature(feature, name, dataset):
     # Learn the statistics of the data
     normalizer.adapt(feature_ds)
 
-    # Normalize the input feature
-    encoded_feature = normalizer(feature)
-    return encoded_feature
+    return normalizer(feature)
 
 
 def encode_categorical_feature(feature, name, dataset, is_string):
@@ -203,9 +201,7 @@ def encode_categorical_feature(feature, name, dataset, is_string):
     # Learn the set of possible string values and assign them a fixed integer index
     lookup.adapt(feature_ds)
 
-    # Turn the string input into integer indices
-    encoded_feature = lookup(feature)
-    return encoded_feature
+    return lookup(feature)
 
 
 """

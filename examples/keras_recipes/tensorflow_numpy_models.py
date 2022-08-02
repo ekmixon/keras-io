@@ -179,9 +179,7 @@ class TNPDense(keras.layers.Layer):
 
     def call(self, inputs):
         outputs = tnp.matmul(inputs, self.w) + self.bias
-        if self.activation:
-            return self.activation(outputs)
-        return outputs
+        return self.activation(outputs) if self.activation else outputs
 
 
 def create_layered_tnp_model():
@@ -247,13 +245,12 @@ This makes it simple to perform distributed training across multiple GPUs,
 or even an entire TPU Pod.
 """
 
-gpus = tf.config.list_logical_devices("GPU")
-if gpus:
+if gpus := tf.config.list_logical_devices("GPU"):
     strategy = tf.distribute.MirroredStrategy(gpus)
 else:
     # We can fallback to a no-op CPU strategy.
     strategy = tf.distribute.get_strategy()
-print("Running with strategy:", str(strategy.__class__.__name__))
+print("Running with strategy:", strategy.__class__.__name__)
 
 with strategy.scope():
     model = create_layered_tnp_model()

@@ -5,6 +5,7 @@ Date created: 2020/05/13
 Last modified: 2020/05/13
 Description: Implement Actor Critic Method in CartPole environment.
 """
+
 """
 ## Introduction
 
@@ -92,7 +93,7 @@ while True:  # Run until solved
     state = env.reset()
     episode_reward = 0
     with tf.GradientTape() as tape:
-        for timestep in range(1, max_steps_per_episode):
+        for _ in range(1, max_steps_per_episode):
             # env.render(); Adding this line would show the attempts
             # of the agent in a pop up window.
 
@@ -170,7 +171,7 @@ while True:  # Run until solved
         print(template.format(running_reward, episode_count))
 
     if running_reward > 195:  # Condition to consider the task solved
-        print("Solved at episode {}!".format(episode_count))
+        print(f"Solved at episode {episode_count}!")
         break
 """
 ## Visualizations

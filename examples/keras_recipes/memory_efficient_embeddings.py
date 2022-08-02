@@ -119,9 +119,11 @@ def run_experiment(model):
     train_dataset = get_dataset_from_csv("train_data.csv", batch_size)
     # Read the test data.
     eval_dataset = get_dataset_from_csv("eval_data.csv", batch_size, shuffle=False)
-    # Fit the model with the training data.
-    history = model.fit(train_dataset, epochs=num_epochs, validation_data=eval_dataset,)
-    return history
+    return model.fit(
+        train_dataset,
+        epochs=num_epochs,
+        validation_data=eval_dataset,
+    )
 
 
 """
@@ -171,11 +173,11 @@ def create_baseline_model():
     )
     # Convert to rating scale.
     prediction = keras.activations.sigmoid(logits) * 5
-    # Create the model.
-    model = keras.Model(
-        inputs=[user_input, movie_input], outputs=prediction, name="baseline_model"
+    return keras.Model(
+        inputs=[user_input, movie_input],
+        outputs=prediction,
+        name="baseline_model",
     )
-    return model
 
 
 baseline_model = create_baseline_model()
@@ -391,11 +393,11 @@ def create_memory_efficient_model():
     )
     # Convert to rating scale.
     prediction = keras.activations.sigmoid(logits) * 5
-    # Create the model.
-    model = keras.Model(
-        inputs=[user_input, movie_input], outputs=prediction, name="baseline_model"
+    return keras.Model(
+        inputs=[user_input, movie_input],
+        outputs=prediction,
+        name="baseline_model",
     )
-    return model
 
 
 memory_efficient_model = create_memory_efficient_model()

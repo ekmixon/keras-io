@@ -151,8 +151,7 @@ def get_discriminator_model():
     x = layers.Dropout(0.2)(x)
     x = layers.Dense(1)(x)
 
-    d_model = keras.models.Model(img_input, x, name="discriminator")
-    return d_model
+    return keras.models.Model(img_input, x, name="discriminator")
 
 
 d_model = get_discriminator_model()
@@ -225,8 +224,7 @@ def get_generator_model():
     # We will use a Cropping2D layer to make it (28, 28, 1).
     x = layers.Cropping2D((2, 2))(x)
 
-    g_model = keras.models.Model(noise, x, name="generator")
-    return g_model
+    return keras.models.Model(noise, x, name="generator")
 
 
 g_model = get_generator_model()
@@ -283,8 +281,7 @@ class WGAN(keras.Model):
         grads = gp_tape.gradient(pred, [interpolated])[0]
         # 3. Calculate the norm of the gradients.
         norm = tf.sqrt(tf.reduce_sum(tf.square(grads), axis=[1, 2, 3]))
-        gp = tf.reduce_mean((norm - 1.0) ** 2)
-        return gp
+        return tf.reduce_mean((norm - 1.0) ** 2)
 
     def train_step(self, real_images):
         if isinstance(real_images, tuple):
@@ -306,7 +303,7 @@ class WGAN(keras.Model):
         # the discriminator for `x` more steps (typically 5) as compared to
         # one step of the generator. Here we will train it for 3 extra steps
         # as compared to 5 to reduce the training time.
-        for i in range(self.d_steps):
+        for _ in range(self.d_steps):
             # Get the latent vector
             random_latent_vectors = tf.random.normal(
                 shape=(batch_size, self.latent_dim)

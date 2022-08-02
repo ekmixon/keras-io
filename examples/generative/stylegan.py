@@ -163,10 +163,10 @@ class EqualizedConv(layers.Layer):
             x = tf.pad(inputs, [[0, 0], [1, 1], [1, 1], [0, 0]], mode="REFLECT")
         else:
             x = inputs
-        output = (
-            tf.nn.conv2d(x, self.scale * self.w, strides=1, padding="VALID") + self.b
+        return (
+            tf.nn.conv2d(x, self.scale * self.w, strides=1, padding="VALID")
+            + self.b
         )
-        return output
 
 
 class EqualizedDense(layers.Layer):
@@ -208,8 +208,7 @@ class AddNoise(layers.Layer):
 
     def call(self, inputs):
         x, noise = inputs
-        output = x + self.b * noise
-        return output
+        return x + self.b * noise
 
 
 class AdaIN(layers.Layer):
@@ -251,7 +250,7 @@ Same for the discriminator.
 def Mapping(num_stages, input_shape=512):
     z = layers.Input(shape=(input_shape))
     w = pixel_norm(z)
-    for i in range(8):
+    for _ in range(8):
         w = EqualizedDense(512, learning_rate_multiplier=0.01)(w)
         w = layers.LeakyReLU(0.2)(w)
     w = tf.tile(tf.expand_dims(w, 1), (1, num_stages, 1))
@@ -408,12 +407,11 @@ class Discriminator:
             self.from_rgb.append(from_rgb)
 
             input_shape = (res, res, filter_num)
-            if len(self.d_blocks) == 0:
-                d_block = self.build_base(filter_num, res)
-            else:
-                d_block = self.build_block(
-                    filter_num, self.filter_nums[res_log2 - 1], res
-                )
+            d_block = (
+                self.build_block(filter_num, self.filter_nums[res_log2 - 1], res)
+                if self.d_blocks
+                else self.build_base(filter_num, res)
+            )
 
             self.d_blocks.append(d_block)
 
@@ -511,11 +509,10 @@ class StyleGAN(tf.keras.Model):
         return [self.d_loss_metric, self.g_loss_metric]
 
     def generate_noise(self, batch_size):
-        noise = [
-            tf.random.normal((batch_size, 2 ** res, 2 ** res, 1))
+        return [
+            tf.random.normal((batch_size, 2**res, 2**res, 1))
             for res in range(self.start_res_log2, self.target_res_log2 + 1)
         ]
-        return noise
 
     def gradient_loss(self, grad):
         loss = tf.square(grad)

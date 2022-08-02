@@ -138,6 +138,7 @@ between the two movies, which is computed as: `log(xy) - log(x) - log(y) + log(D
 * `D` total number of movie ratings >= `min_rating`.
 """
 
+
 """
 ### Step 1: create the weighted edges between movies.
 """
@@ -206,10 +207,7 @@ print("Total number of graph edges:", movies_graph.number_of_edges())
 Let's display the average node degree (number of neighbours) in the graph.
 """
 
-degrees = []
-for node in movies_graph.nodes:
-    degrees.append(movies_graph.degree[node])
-
+degrees = [movies_graph.degree[node] for node in movies_graph.nodes]
 print("Average node degree:", round(sum(degrees) / len(degrees), 2))
 
 """
@@ -263,9 +261,7 @@ def next_step(graph, previous, current, p, q):
     # Compute the probabilities of visiting each neighbor.
     weight_sum = sum(weights)
     probabilities = [weight / weight_sum for weight in weights]
-    # Probabilistically select a neighbor to visit.
-    next = np.random.choice(neighbors, size=1, p=probabilities)[0]
-    return next
+    return np.random.choice(neighbors, size=1, p=probabilities)[0]
 
 
 def random_walk(graph, num_walks, num_steps, p, q):
@@ -337,12 +333,7 @@ otherwise (i.e., if randomly sampled) the label is 0.
 def generate_examples(sequences, window_size, num_negative_samples, vocabulary_size):
     example_weights = defaultdict(int)
     # Iterate over all sequences (walks).
-    for sequence in tqdm(
-        sequences,
-        position=0,
-        leave=True,
-        desc=f"Generating postive and negative examples",
-    ):
+    for sequence in tqdm(sequences, position=0, leave=True, desc="Generating postive and negative examples"):
         # Generate positive and negative skip-gram pairs for a sequence (walk).
         pairs, labels = keras.preprocessing.sequence.skipgrams(
             sequence,
@@ -360,8 +351,7 @@ def generate_examples(sequences, window_size, num_negative_samples, vocabulary_s
             example_weights[entry] += 1
 
     targets, contexts, labels, weights = [], [], [], []
-    for entry in example_weights:
-        weight = example_weights[entry]
+    for entry, weight in example_weights.items():
         target, context, label = entry
         targets.append(target)
         contexts.append(context)
@@ -458,9 +448,7 @@ def create_model(vocabulary_size, embedding_dim):
     logits = layers.Dot(axes=1, normalize=False, name="dot_similarity")(
         [target_embeddings, context_embeddings]
     )
-    # Create the model.
-    model = keras.Model(inputs=inputs, outputs=logits)
-    return model
+    return keras.Model(inputs=inputs, outputs=logits)
 
 
 """

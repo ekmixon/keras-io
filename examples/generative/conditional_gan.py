@@ -292,8 +292,7 @@ def interpolate_class(first_number, second_number):
 
     # Combine the noise and the labels and run inference with the generator.
     noise_and_labels = tf.concat([interpolation_noise, interpolation_labels], 1)
-    fake = trained_gen.predict(noise_and_labels)
-    return fake
+    return trained_gen.predict(noise_and_labels)
 
 
 start_class = 1  # @param {type:"slider", min:0, max:9, step:1}

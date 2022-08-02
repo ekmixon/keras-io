@@ -183,8 +183,7 @@ def get_uncompiled_model():
     x = layers.Dense(64, activation="relu", name="dense_1")(inputs)
     x = layers.Dense(64, activation="relu", name="dense_2")(x)
     outputs = layers.Dense(10, activation="softmax", name="predictions")(x)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 def get_compiled_model():
@@ -1090,10 +1089,9 @@ if not os.path.exists(checkpoint_dir):
 
 
 def make_or_restore_model():
-    # Either restore the latest model, or create a fresh one
-    # if there is no checkpoint available.
-    checkpoints = [checkpoint_dir + "/" + name for name in os.listdir(checkpoint_dir)]
-    if checkpoints:
+    if checkpoints := [
+        f"{checkpoint_dir}/{name}" for name in os.listdir(checkpoint_dir)
+    ]:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print("Restoring from", latest_checkpoint)
         return keras.models.load_model(latest_checkpoint)

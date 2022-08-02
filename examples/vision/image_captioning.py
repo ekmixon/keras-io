@@ -107,7 +107,7 @@ def load_captions_data(filename):
 
             if img_name.endswith("jpg") and img_name not in images_to_skip:
                 # We will add a start and an end token to each caption
-                caption = "<start> " + caption.strip() + " <end>"
+                caption = f"<start> {caption.strip()} <end>"
                 text_data.append(caption)
 
                 if img_name in caption_mapping:
@@ -186,7 +186,7 @@ splitting scheme (split on whitespace).
 
 def custom_standardization(input_string):
     lowercase = tf.strings.lower(input_string)
-    return tf.strings.regex_replace(lowercase, "[%s]" % re.escape(strip_chars), "")
+    return tf.strings.regex_replace(lowercase, f"[{re.escape(strip_chars)}]", "")
 
 
 strip_chars = "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
@@ -292,8 +292,7 @@ def get_cnn_model():
     base_model.trainable = False
     base_model_out = base_model.output
     base_model_out = layers.Reshape((-1, base_model_out.shape[-1]))(base_model_out)
-    cnn_model = keras.models.Model(base_model.input, base_model_out)
-    return cnn_model
+    return keras.models.Model(base_model.input, base_model_out)
 
 
 class TransformerEncoderBlock(layers.Layer):
@@ -320,8 +319,7 @@ class TransformerEncoderBlock(layers.Layer):
             attention_mask=None,
             training=training,
         )
-        out_1 = self.layernorm_2(inputs + attention_output_1)
-        return out_1
+        return self.layernorm_2(inputs + attention_output_1)
 
 
 class PositionalEmbedding(layers.Layer):
@@ -411,8 +409,7 @@ class TransformerDecoderBlock(layers.Layer):
 
         ffn_out = self.layernorm_3(ffn_out + out_2, training=training)
         ffn_out = self.dropout_2(ffn_out, training=training)
-        preds = self.out(ffn_out)
-        return preds
+        return self.out(ffn_out)
 
     def get_causal_attention_mask(self, inputs):
         input_shape = tf.shape(inputs)
@@ -636,7 +633,7 @@ def generate_caption():
         sampled_token = index_lookup[sampled_token_index]
         if sampled_token == " <end>":
             break
-        decoded_caption += " " + sampled_token
+        decoded_caption += f" {sampled_token}"
 
     decoded_caption = decoded_caption.replace("<start> ", "")
     decoded_caption = decoded_caption.replace(" <end>", "").strip()

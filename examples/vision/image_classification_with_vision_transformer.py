@@ -170,8 +170,7 @@ class PatchEncoder(layers.Layer):
 
     def call(self, patch):
         positions = tf.range(start=0, limit=self.num_patches, delta=1)
-        encoded = self.projection(patch) + self.position_embedding(positions)
-        return encoded
+        return self.projection(patch) + self.position_embedding(positions)
 
 
 """
@@ -228,9 +227,7 @@ def create_vit_classifier():
     features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.5)
     # Classify outputs.
     logits = layers.Dense(num_classes)(features)
-    # Create the Keras model.
-    model = keras.Model(inputs=inputs, outputs=logits)
-    return model
+    return keras.Model(inputs=inputs, outputs=logits)
 
 
 """

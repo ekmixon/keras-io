@@ -6,6 +6,7 @@ Last modified: 2020/05/05
 Description: Text classification on the Newsgroup20 dataset using pre-trained GloVe word embeddings.
 """
 
+
 """
 ## Setup
 """
@@ -68,8 +69,7 @@ explicitly (the first line is literally the category name), or implicitly, e.g. 
 samples = []
 labels = []
 class_names = []
-class_index = 0
-for dirname in sorted(os.listdir(data_dir)):
+for class_index, dirname in enumerate(sorted(os.listdir(data_dir))):
     class_names.append(dirname)
     dirpath = data_dir / dirname
     fnames = os.listdir(dirpath)
@@ -83,8 +83,6 @@ for dirname in sorted(os.listdir(data_dir)):
         content = "\n".join(lines)
         samples.append(content)
         labels.append(class_index)
-    class_index += 1
-
 print("Classes:", class_names)
 print("Number of samples:", len(samples))
 
@@ -193,7 +191,7 @@ with open(path_to_glove_file) as f:
         coefs = np.fromstring(coefs, "f", sep=" ")
         embeddings_index[word] = coefs
 
-print("Found %s word vectors." % len(embeddings_index))
+print(f"Found {len(embeddings_index)} word vectors.")
 
 """
 Now, let's prepare a corresponding embedding matrix that we can use in a Keras

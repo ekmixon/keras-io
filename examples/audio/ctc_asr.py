@@ -6,6 +6,7 @@ Last modified: 2021/09/26
 Description: Training a CTC-based model for automatic speech recognition.
 """
 
+
 """
 ## Introduction
 
@@ -115,7 +116,7 @@ We first prepare the vocabulary to be used.
 """
 
 # The set of characters accepted in the transcription.
-characters = [x for x in "abcdefghijklmnopqrstuvwxyz'?! "]
+characters = list("abcdefghijklmnopqrstuvwxyz'?! ")
 # Mapping characters to integers
 char_to_num = keras.layers.StringLookup(vocabulary=characters, oov_token="")
 # Mapping integers back to original characters
@@ -252,8 +253,7 @@ def CTCLoss(y_true, y_pred):
     input_length = input_length * tf.ones(shape=(batch_len, 1), dtype="int64")
     label_length = label_length * tf.ones(shape=(batch_len, 1), dtype="int64")
 
-    loss = keras.backend.ctc_batch_cost(y_true, y_pred, input_length, label_length)
-    return loss
+    return keras.backend.ctc_batch_cost(y_true, y_pred, input_length, label_length)
 
 
 """

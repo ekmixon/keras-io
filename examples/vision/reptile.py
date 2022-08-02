@@ -125,9 +125,7 @@ class Dataset:
             (temp_images.astype(np.float32), temp_labels.astype(np.int32))
         )
         dataset = dataset.shuffle(100).batch(batch_size).repeat(repetitions)
-        if split:
-            return dataset, test_images, test_labels
-        return dataset
+        return (dataset, test_images, test_labels) if split else dataset
 
 
 import urllib3
@@ -151,7 +149,7 @@ for a in range(5):
         temp_image *= 255
         temp_image = np.clip(temp_image, 0, 255).astype("uint8")
         if b == 2:
-            axarr[a, b].set_title("Class : " + sample_keys[a])
+            axarr[a, b].set_title(f"Class : {sample_keys[a]}")
         axarr[a, b].imshow(temp_image, cmap="gray")
         axarr[a, b].xaxis.set_visible(False)
         axarr[a, b].yaxis.set_visible(False)
@@ -279,9 +277,7 @@ for i, ax in zip(range(5), axarr):
     temp_image = np.stack((test_images[i, :, :, 0],) * 3, axis=2)
     temp_image *= 255
     temp_image = np.clip(temp_image, 0, 255).astype("uint8")
-    ax.set_title(
-        "Label : {}, Prediction : {}".format(int(test_labels[i]), test_preds[i])
-    )
+    ax.set_title(f"Label : {int(test_labels[i])}, Prediction : {test_preds[i]}")
     ax.imshow(temp_image, cmap="gray")
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)

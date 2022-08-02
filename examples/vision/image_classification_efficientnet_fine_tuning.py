@@ -219,7 +219,7 @@ label_info = ds_info.features["label"]
 for i, (image, label) in enumerate(ds_train.take(9)):
     ax = plt.subplot(3, 3, i + 1)
     plt.imshow(image.numpy().astype("uint8"))
-    plt.title("{}".format(format_label(label)))
+    plt.title(f"{format_label(label)}")
     plt.axis("off")
 
 
@@ -255,7 +255,7 @@ for image, label in ds_train.take(1):
         ax = plt.subplot(3, 3, i + 1)
         aug_img = img_augmentation(tf.expand_dims(image, axis=0))
         plt.imshow(aug_img[0].numpy().astype("uint8"))
-        plt.title("{}".format(format_label(label)))
+        plt.title(f"{format_label(label)}")
         plt.axis("off")
 
 

@@ -49,8 +49,7 @@ class Antirectifier(layers.Layer):
         pos = tf.nn.relu(inputs)
         neg = tf.nn.relu(-inputs)
         concatenated = tf.concat([pos, neg], axis=-1)
-        mixed = tf.matmul(concatenated, self.kernel)
-        return mixed
+        return tf.matmul(concatenated, self.kernel)
 
     def get_config(self):
         # Implement get_config to enable serialization. This is optional.

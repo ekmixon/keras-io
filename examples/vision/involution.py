@@ -192,6 +192,7 @@ class Involution(keras.layers.Layer):
 ## Testing the Involution layer
 """
 
+
 # Define the input tensor.
 input_tensor = tf.random.normal((32, 256, 256, 3))
 
@@ -212,8 +213,9 @@ output_tensor, _ = Involution(
     channel=16, group_number=1, kernel_size=5, stride=1, reduction_ratio=2, name="inv_3"
 )(input_tensor)
 print(
-    "with channel 16 and reduction ratio 2 ouput shape: {}".format(output_tensor.shape)
+    f"with channel 16 and reduction ratio 2 ouput shape: {output_tensor.shape}"
 )
+
 
 """
 ## Image Classification

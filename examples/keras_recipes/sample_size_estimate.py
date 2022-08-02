@@ -201,7 +201,7 @@ def compile_and_train(
 
     model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=metrics)
 
-    history = model.fit(
+    return model.fit(
         x=training_data,
         y=training_labels,
         batch_size=batch_size,
@@ -209,7 +209,6 @@ def compile_and_train(
         validation_split=0.1,
         callbacks=[stopper],
     )
-    return history
 
 
 def unfreeze(model, block_name, verbose=0):
@@ -236,9 +235,8 @@ def unfreeze(model, block_name, verbose=0):
             layer.trainable = True
             if verbose == 1:
                 print(layer.name, "trainable")
-        else:
-            if verbose == 1:
-                print(layer.name, "NOT trainable")
+        elif verbose == 1:
+            print(layer.name, "NOT trainable")
     print("Trainable weights:", len(model.trainable_weights))
     print("Non-trainable weights:", len(model.non_trainable_weights))
     return model

@@ -126,9 +126,7 @@ class VectorQuantizer(layers.Layer):
             - 2 * similarity
         )
 
-        # Derive the indices for minimum distances.
-        encoding_indices = tf.argmin(distances, axis=1)
-        return encoding_indices
+        return tf.argmin(distances, axis=1)
 
 
 """

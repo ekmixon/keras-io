@@ -6,6 +6,7 @@ Last modified: 2021/05/05
 Description: Using Wide & Deep and Deep & Cross networks for structured data classification.
 """
 
+
 """
 ## Introduction
 
@@ -62,11 +63,13 @@ soil_type_values = [f"soil_type_{idx+1}" for idx in range(40)]
 wilderness_area_values = [f"area_type_{idx+1}" for idx in range(4)]
 
 soil_type = raw_data.loc[:, 14:53].apply(
-    lambda x: soil_type_values[0::1][x.to_numpy().nonzero()[0][0]], axis=1
+    lambda x: soil_type_values[::1][x.to_numpy().nonzero()[0][0]], axis=1
 )
+
 wilderness_area = raw_data.loc[:, 10:13].apply(
-    lambda x: wilderness_area_values[0::1][x.to_numpy().nonzero()[0][0]], axis=1
+    lambda x: wilderness_area_values[::1][x.to_numpy().nonzero()[0][0]], axis=1
 )
+
 
 CSV_HEADER = [
     "Elevation",
@@ -236,17 +239,14 @@ and data type.
 
 
 def create_model_inputs():
-    inputs = {}
-    for feature_name in FEATURE_NAMES:
-        if feature_name in NUMERIC_FEATURE_NAMES:
-            inputs[feature_name] = layers.Input(
-                name=feature_name, shape=(), dtype=tf.float32
-            )
-        else:
-            inputs[feature_name] = layers.Input(
-                name=feature_name, shape=(), dtype=tf.string
-            )
-    return inputs
+    return {
+        feature_name: layers.Input(
+            name=feature_name, shape=(), dtype=tf.float32
+        )
+        if feature_name in NUMERIC_FEATURE_NAMES
+        else layers.Input(name=feature_name, shape=(), dtype=tf.string)
+        for feature_name in FEATURE_NAMES
+    }
 
 
 """
@@ -298,8 +298,7 @@ def encode_inputs(inputs, use_embedding=False):
 
         encoded_features.append(encoded_feature)
 
-    all_features = layers.concatenate(encoded_features)
-    return all_features
+    return layers.concatenate(encoded_features)
 
 
 """
@@ -321,8 +320,7 @@ def create_baseline_model():
         features = layers.Dropout(dropout_rate)(features)
 
     outputs = layers.Dense(units=NUM_CLASSES, activation="softmax")(features)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 baseline_model = create_baseline_model()
@@ -367,8 +365,7 @@ def create_wide_and_deep_model():
 
     merged = layers.concatenate([wide, deep])
     outputs = layers.Dense(units=NUM_CLASSES, activation="softmax")(merged)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 wide_and_deep_model = create_wide_and_deep_model()
@@ -415,8 +412,7 @@ def create_deep_and_cross_model():
 
     merged = layers.concatenate([cross, deep])
     outputs = layers.Dense(units=NUM_CLASSES, activation="softmax")(merged)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 deep_and_cross_model = create_deep_and_cross_model()

@@ -236,8 +236,7 @@ class AnchorBox:
                 dims = tf.reshape(
                     tf.stack([anchor_width, anchor_height], axis=-1), [1, 1, 2]
                 )
-                for scale in self.scales:
-                    anchor_dims.append(scale * dims)
+                anchor_dims.extend(scale * dims for scale in self.scales)
             anchor_dims_all.append(tf.stack(anchor_dims, axis=-2))
         return anchor_dims_all
 
@@ -509,8 +508,7 @@ class LabelEncoder:
         )
         cls_target = tf.where(tf.equal(ignore_mask, 1.0), -2.0, cls_target)
         cls_target = tf.expand_dims(cls_target, axis=-1)
-        label = tf.concat([box_target, cls_target], axis=-1)
-        return label
+        return tf.concat([box_target, cls_target], axis=-1)
 
     def encode_batch(self, batch_images, gt_boxes, cls_ids):
         """Creates box and classification targets for a batch"""
@@ -564,7 +562,7 @@ class FeaturePyramid(keras.layers.Layer):
 
     def __init__(self, backbone=None, **kwargs):
         super(FeaturePyramid, self).__init__(name="FeaturePyramid", **kwargs)
-        self.backbone = backbone if backbone else get_backbone()
+        self.backbone = backbone or get_backbone()
         self.conv_c3_1x1 = keras.layers.Conv2D(256, 1, 1, "same")
         self.conv_c4_1x1 = keras.layers.Conv2D(256, 1, 1, "same")
         self.conv_c5_1x1 = keras.layers.Conv2D(256, 1, 1, "same")
@@ -719,8 +717,7 @@ class DecodePredictions(tf.keras.layers.Layer):
             ],
             axis=-1,
         )
-        boxes_transformed = convert_to_corners(boxes)
-        return boxes_transformed
+        return convert_to_corners(boxes)
 
     def call(self, images, predictions):
         image_shape = tf.cast(tf.shape(images), dtype=tf.float32)
@@ -815,8 +812,7 @@ class RetinaNetLoss(tf.losses.Loss):
         normalizer = tf.reduce_sum(positive_mask, axis=-1)
         clf_loss = tf.math.divide_no_nan(tf.reduce_sum(clf_loss, axis=-1), normalizer)
         box_loss = tf.math.divide_no_nan(tf.reduce_sum(box_loss, axis=-1), normalizer)
-        loss = clf_loss + box_loss
-        return loss
+        return clf_loss + box_loss
 
 
 """

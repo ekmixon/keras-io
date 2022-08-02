@@ -173,17 +173,14 @@ def get_dataset_from_csv(csv_file_path, shuffle=False, batch_size=128):
 
 
 def create_model_inputs():
-    inputs = {}
-    for feature_name in FEATURE_NAMES:
-        if feature_name in NUMERIC_FEATURE_NAMES:
-            inputs[feature_name] = layers.Input(
-                name=feature_name, shape=(), dtype=tf.float32
-            )
-        else:
-            inputs[feature_name] = layers.Input(
-                name=feature_name, shape=(), dtype=tf.string
-            )
-    return inputs
+    return {
+        feature_name: layers.Input(
+            name=feature_name, shape=(), dtype=tf.float32
+        )
+        if feature_name in NUMERIC_FEATURE_NAMES
+        else layers.Input(name=feature_name, shape=(), dtype=tf.string)
+        for feature_name in FEATURE_NAMES
+    }
 
 
 """
@@ -214,7 +211,7 @@ def encode_inputs(inputs):
         else:
             # Use the numerical features as-is.
             encoded_feature = inputs[feature_name]
-            if inputs[feature_name].shape[-1] is None:
+            if encoded_feature.shape[-1] is None:
                 encoded_feature = tf.expand_dims(encoded_feature, -1)
 
         encoded_features.append(encoded_feature)
@@ -304,8 +301,7 @@ class NeuralDecisionTree(keras.Model):
 
         mu = tf.reshape(mu, [batch_size, self.num_leaves])  # [batch_size, num_leaves]
         probabilities = keras.activations.softmax(self.pi)  # [num_leaves, num_classes]
-        outputs = tf.matmul(mu, probabilities)  # [batch_size, num_classes]
-        return outputs
+        return tf.matmul(mu, probabilities)
 
 
 """
@@ -319,13 +315,12 @@ trained simultaneously. The output of the forest model is the average outputs of
 class NeuralDecisionForest(keras.Model):
     def __init__(self, num_trees, depth, num_features, used_features_rate, num_classes):
         super(NeuralDecisionForest, self).__init__()
-        self.ensemble = []
-        # Initialize the ensemble by adding NeuralDecisionTree instances.
-        # Each tree will have its own randomly selected input features to use.
-        for _ in range(num_trees):
-            self.ensemble.append(
-                NeuralDecisionTree(depth, num_features, used_features_rate, num_classes)
+        self.ensemble = [
+            NeuralDecisionTree(
+                depth, num_features, used_features_rate, num_classes
             )
+            for _ in range(num_trees)
+        ]
 
     def call(self, inputs):
         # Initialize the outputs: a [batch_size, num_classes] matrix of zeros.
@@ -395,8 +390,7 @@ def create_tree_model():
     tree = NeuralDecisionTree(depth, num_features, used_features_rate, num_classes)
 
     outputs = tree(features)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 tree_model = create_tree_model()
@@ -428,8 +422,7 @@ def create_forest_model():
     )
 
     outputs = forest_model(features)
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 forest_model = create_forest_model()

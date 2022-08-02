@@ -5,6 +5,7 @@ Date created: 2015/06/15
 Last modified: 2020/04/30
 Description: Generate text from Nietzsche's writings with a character-level LSTM.
 """
+
 """
 ## Introduction
 
@@ -45,8 +46,8 @@ print("Corpus length:", len(text))
 
 chars = sorted(list(set(text)))
 print("Total chars:", len(chars))
-char_indices = dict((c, i) for i, c in enumerate(chars))
-indices_char = dict((i, c) for i, c in enumerate(chars))
+char_indices = {c: i for i, c in enumerate(chars)}
+indices_char = dict(enumerate(chars))
 
 # cut the text in semi-redundant sequences of maxlen characters
 maxlen = 40
@@ -99,6 +100,7 @@ def sample(preds, temperature=1.0):
 ## Train the model
 """
 
+
 epochs = 40
 batch_size = 128
 
@@ -115,7 +117,7 @@ for epoch in range(epochs):
         sentence = text[start_index : start_index + maxlen]
         print('...Generating with seed: "' + sentence + '"')
 
-        for i in range(400):
+        for _ in range(400):
             x_pred = np.zeros((1, maxlen, len(chars)))
             for t, char in enumerate(sentence):
                 x_pred[0, t, char_indices[char]] = 1.0

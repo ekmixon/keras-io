@@ -122,11 +122,11 @@ def create_ffn(hidden_units, dropout_rate):
     for units in hidden_units[:-1]:
         ffn_layers.append(layers.Dense(units, activation=tf.nn.gelu))
 
-    ffn_layers.append(layers.Dense(units=hidden_units[-1]))
-    ffn_layers.append(layers.Dropout(dropout_rate))
+    ffn_layers.extend(
+        (layers.Dense(units=hidden_units[-1]), layers.Dropout(dropout_rate))
+    )
 
-    ffn = keras.Sequential(ffn_layers)
-    return ffn
+    return keras.Sequential(ffn_layers)
 
 
 """
@@ -175,8 +175,7 @@ class PatchEncoder(layers.Layer):
 
     def call(self, patches):
         positions = tf.range(start=0, limit=self.num_patches, delta=1)
-        encoded = self.projection(patches) + self.position_embedding(positions)
-        return encoded
+        return self.projection(patches) + self.position_embedding(positions)
 
 
 """
@@ -237,9 +236,7 @@ def create_cross_attention_module(
     # Skip connection 2.
     outputs = layers.Add()([outputs, attention_output])
 
-    # Create the Keras model.
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs)
 
 
 """
@@ -282,9 +279,7 @@ def create_transformer_module(
         # Skip connection 2.
         x0 = layers.Add()([x3, x2])
 
-    # Create the Keras model.
-    model = keras.Model(inputs=inputs, outputs=x0)
-    return model
+    return keras.Model(inputs=inputs, outputs=x0)
 
 
 """
@@ -389,9 +384,7 @@ class Perceiver(keras.Model):
 
         # Apply global average pooling to generate a [batch_size, projection_dim] repesentation tensor.
         representation = self.global_average_pooling(latent_array)
-        # Generate logits.
-        logits = self.classification_head(representation)
-        return logits
+        return self.classification_head(representation)
 
 
 """

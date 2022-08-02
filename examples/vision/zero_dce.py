@@ -399,10 +399,10 @@ history = zero_dce_model.fit(train_dataset, validation_data=val_dataset, epochs=
 
 def plot_result(item):
     plt.plot(history.history[item], label=item)
-    plt.plot(history.history["val_" + item], label="val_" + item)
+    plt.plot(history.history[f"val_{item}"], label=f"val_{item}")
     plt.xlabel("Epochs")
     plt.ylabel(item)
-    plt.title("Train and Validation {} Over Epochs".format(item), fontsize=14)
+    plt.title(f"Train and Validation {item} Over Epochs", fontsize=14)
     plt.legend()
     plt.grid()
     plt.show()

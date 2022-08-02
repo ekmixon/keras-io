@@ -162,8 +162,7 @@ class TransformerDecoder(layers.Layer):
         enc_out = self.enc_att(target_norm, enc_out)
         enc_out_norm = self.layernorm2(self.enc_dropout(enc_out) + target_norm)
         ffn_out = self.ffn(enc_out_norm)
-        ffn_out_norm = self.layernorm3(enc_out_norm + self.ffn_dropout(ffn_out))
-        return ffn_out_norm
+        return self.layernorm3(enc_out_norm + self.ffn_dropout(ffn_out))
 
 
 """
@@ -269,7 +268,7 @@ class Transformer(keras.Model):
         enc = self.encoder(source)
         dec_input = tf.ones((bs, 1), dtype=tf.int32) * target_start_token_idx
         dec_logits = []
-        for i in range(self.target_maxlen - 1):
+        for _ in range(self.target_maxlen - 1):
             dec_out = self.decode(enc, dec_input)
             logits = self.classifier(dec_out)
             logits = tf.argmax(logits, axis=-1, output_type=tf.int32)
@@ -286,6 +285,7 @@ Note: This requires ~3.6 GB of disk space and
 takes ~5 minutes for the extraction of files.
 """
 
+
 keras.utils.get_file(
     os.path.join(os.getcwd(), "data.tar.gz"),
     "https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2",
@@ -296,7 +296,7 @@ keras.utils.get_file(
 
 
 saveto = "./datasets/LJSpeech-1.1"
-wavs = glob("{}/**/*.wav".format(saveto), recursive=True)
+wavs = glob(f"{saveto}/**/*.wav", recursive=True)
 
 id_to_text = {}
 with open(os.path.join(saveto, "metadata.csv"), encoding="utf-8") as f:
@@ -329,14 +329,12 @@ class VectorizeChar:
             + [" ", ".", ",", "?"]
         )
         self.max_len = max_len
-        self.char_to_idx = {}
-        for i, ch in enumerate(self.vocab):
-            self.char_to_idx[ch] = i
+        self.char_to_idx = {ch: i for i, ch in enumerate(self.vocab)}
 
     def __call__(self, text):
         text = text.lower()
         text = text[: self.max_len - 2]
-        text = "<" + text + ">"
+        text = f"<{text}>"
         pad_len = self.max_len - len(text)
         return [self.char_to_idx.get(ch, 1) for ch in text] + [0] * pad_len
 

@@ -87,8 +87,7 @@ def get_text_list_from_files(files):
     text_list = []
     for name in files:
         with open(name) as f:
-            for line in f:
-                text_list.append(line)
+            text_list.extend(iter(f))
     return text_list
 
 
@@ -263,14 +262,17 @@ def bert_module(query, key, value, i):
     attention_output = layers.MultiHeadAttention(
         num_heads=config.NUM_HEAD,
         key_dim=config.EMBED_DIM // config.NUM_HEAD,
-        name="encoder_{}/multiheadattention".format(i),
+        name=f"encoder_{i}/multiheadattention",
     )(query, key, value)
-    attention_output = layers.Dropout(0.1, name="encoder_{}/att_dropout".format(i))(
+
+    attention_output = layers.Dropout(0.1, name=f"encoder_{i}/att_dropout")(
         attention_output
     )
+
     attention_output = layers.LayerNormalization(
-        epsilon=1e-6, name="encoder_{}/att_layernormalization".format(i)
+        epsilon=1e-6, name=f"encoder_{i}/att_layernormalization"
     )(query + attention_output)
+
 
     # Feed-forward layer
     ffn = keras.Sequential(
@@ -278,16 +280,14 @@ def bert_module(query, key, value, i):
             layers.Dense(config.FF_DIM, activation="relu"),
             layers.Dense(config.EMBED_DIM),
         ],
-        name="encoder_{}/ffn".format(i),
+        name=f"encoder_{i}/ffn",
     )
+
     ffn_output = ffn(attention_output)
-    ffn_output = layers.Dropout(0.1, name="encoder_{}/ffn_dropout".format(i))(
-        ffn_output
-    )
-    sequence_output = layers.LayerNormalization(
-        epsilon=1e-6, name="encoder_{}/ffn_layernormalization".format(i)
+    ffn_output = layers.Dropout(0.1, name=f"encoder_{i}/ffn_dropout")(ffn_output)
+    return layers.LayerNormalization(
+        epsilon=1e-6, name=f"encoder_{i}/ffn_layernormalization"
     )(attention_output + ffn_output)
-    return sequence_output
 
 
 def get_pos_encoding_matrix(max_len, d_emb):

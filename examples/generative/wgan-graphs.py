@@ -6,6 +6,7 @@ Last modified: 2021/06/30
 Description: Complete implementation of WGAN-GP with R-GCN to generate novel molecules.
 """
 
+
 """
 ## Introduction
 
@@ -100,9 +101,7 @@ csv_path = tf.keras.utils.get_file(
 
 data = []
 with open(csv_path, "r") as f:
-    for line in f.readlines()[1:]:
-        data.append(line.split(",")[1])
-
+    data.extend(line.split(",")[1] for line in f.readlines()[1:])
 # Let's look at a molecule of the dataset
 smiles = data[1000]
 print("SMILES:", smiles)
@@ -215,10 +214,7 @@ def graph_to_molecule(graph):
     # https://www.rdkit.org/docs/RDKit_Book.html#molecular-sanitization
     flag = Chem.SanitizeMol(molecule, catchErrors=True)
     # Let's be strict. If sanitization fails, return None
-    if flag != Chem.SanitizeFlags.SANITIZE_NONE:
-        return None
-
-    return molecule
+    return None if flag != Chem.SanitizeFlags.SANITIZE_NONE else molecule
 
 
 # Test helper functions

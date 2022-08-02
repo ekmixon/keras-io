@@ -5,6 +5,7 @@ Date created: 2021/05/26
 Last modified: 2021/05/26
 Description: Implementing a sequence-to-sequene Transformer and training it on a machine translation task.
 """
+
 """
 ## Introduction
 
@@ -68,7 +69,7 @@ with open(text_file) as f:
 text_pairs = []
 for line in lines:
     eng, spa = line.split("\t")
-    spa = "[start] " + spa + " [end]"
+    spa = f"[start] {spa} [end]"
     text_pairs.append((eng, spa))
 
 """
@@ -114,7 +115,7 @@ each punctuation character into its own token,
 which you could achieve by providing a custom `split` function to the `TextVectorization` layer.
 """
 
-strip_chars = string.punctuation + "¿"
+strip_chars = f"{string.punctuation}¿"
 strip_chars = strip_chars.replace("[", "")
 strip_chars = strip_chars.replace("]", "")
 
@@ -125,7 +126,7 @@ batch_size = 64
 
 def custom_standardization(input_string):
     lowercase = tf.strings.lower(input_string)
-    return tf.strings.regex_replace(lowercase, "[%s]" % re.escape(strip_chars), "")
+    return tf.strings.regex_replace(lowercase, f"[{re.escape(strip_chars)}]", "")
 
 
 eng_vectorization = TextVectorization(
@@ -383,7 +384,7 @@ def decode_sequence(input_sentence):
 
         sampled_token_index = np.argmax(predictions[0, i, :])
         sampled_token = spa_index_lookup[sampled_token_index]
-        decoded_sentence += " " + sampled_token
+        decoded_sentence += f" {sampled_token}"
 
         if sampled_token == "[end]":
             break

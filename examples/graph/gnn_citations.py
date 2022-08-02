@@ -179,8 +179,7 @@ def run_experiment(model, x_train, y_train):
     early_stopping = keras.callbacks.EarlyStopping(
         monitor="val_acc", patience=50, restore_best_weights=True
     )
-    # Fit the model.
-    history = model.fit(
+    return model.fit(
         x=x_train,
         y=y_train,
         epochs=num_epochs,
@@ -188,8 +187,6 @@ def run_experiment(model, x_train, y_train):
         validation_split=0.15,
         callbacks=[early_stopping],
     )
-
-    return history
 
 
 """
@@ -225,9 +222,13 @@ def create_ffn(hidden_units, dropout_rate, name=None):
     fnn_layers = []
 
     for units in hidden_units:
-        fnn_layers.append(layers.BatchNormalization())
-        fnn_layers.append(layers.Dropout(dropout_rate))
-        fnn_layers.append(layers.Dense(units, activation=tf.nn.gelu))
+        fnn_layers.extend(
+            (
+                layers.BatchNormalization(),
+                layers.Dropout(dropout_rate),
+                layers.Dense(units, activation=tf.nn.gelu),
+            )
+        )
 
     return keras.Sequential(fnn_layers, name=name)
 
@@ -259,7 +260,7 @@ roughly the same number of parameters as the GNN models to be built later.
 
 def create_baseline_model(hidden_units, num_classes, dropout_rate=0.2):
     inputs = layers.Input(shape=(num_features,), name="input_features")
-    x = create_ffn(hidden_units, dropout_rate, name=f"ffn_block1")(inputs)
+    x = create_ffn(hidden_units, dropout_rate, name="ffn_block1")(inputs)
     for block_idx in range(4):
         # Create an FFN block.
         x1 = create_ffn(hidden_units, dropout_rate, name=f"ffn_block{block_idx + 2}")(x)
@@ -595,6 +596,7 @@ Notice that if you provide `N` node indices, the output will be a tensor of shap
 regardless of the size of the graph.
 """
 
+
 gnn_model = GNNNodeClassifier(
     graph_info=graph_info,
     num_classes=num_classes,
@@ -662,8 +664,10 @@ for subject_idx, group in papers.groupby("subject"):
     )
     # Create edges between a citing paper idx and the selected cited papers.
     citing_paper_indx = new_node_indices[subject_idx]
-    for cited_paper_idx in selected_paper_indices:
-        new_citations.append([citing_paper_indx, cited_paper_idx])
+    new_citations.extend(
+        [citing_paper_indx, cited_paper_idx]
+        for cited_paper_idx in selected_paper_indices
+    )
 
 new_citations = np.array(new_citations).T
 new_edges = np.concatenate([edges, new_citations], axis=1)

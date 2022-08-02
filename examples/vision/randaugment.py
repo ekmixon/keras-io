@@ -213,14 +213,13 @@ def get_training_model():
         input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3),
         classes=10,
     )
-    model = tf.keras.Sequential(
+    return tf.keras.Sequential(
         [
             layers.Input((IMAGE_SIZE, IMAGE_SIZE, 3)),
             layers.Rescaling(scale=1.0 / 127.5, offset=-1),
             resnet50_v2,
         ]
     )
-    return model
 
 
 get_training_model().summary()

@@ -5,6 +5,7 @@ Date created: 2020/07/29
 Last modified: 2020/08/07
 Description: Loading TFRecords for computer vision models.
 """
+
 """
 ## Introduction + Set Up
 
@@ -43,11 +44,11 @@ IMAGE_SIZE = [1024, 1024]
 ## Load the data
 """
 
-FILENAMES = tf.io.gfile.glob(GCS_PATH + "/tfrecords/train*.tfrec")
+FILENAMES = tf.io.gfile.glob(f"{GCS_PATH}/tfrecords/train*.tfrec")
 split_ind = int(0.9 * len(FILENAMES))
 TRAINING_FILENAMES, VALID_FILENAMES = FILENAMES[:split_ind], FILENAMES[split_ind:]
 
-TEST_FILENAMES = tf.io.gfile.glob(GCS_PATH + "/tfrecords/test*.tfrec")
+TEST_FILENAMES = tf.io.gfile.glob(f"{GCS_PATH}/tfrecords/test*.tfrec")
 print("Train TFRecord Files:", len(TRAINING_FILENAMES))
 print("Validation TFRecord Files:", len(VALID_FILENAMES))
 print("Test TFRecord Files:", len(TEST_FILENAMES))

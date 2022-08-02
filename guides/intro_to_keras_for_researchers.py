@@ -701,9 +701,7 @@ class Dropout(keras.layers.Layer):
         self.rate = rate
 
     def call(self, inputs, training=None):
-        if training:
-            return tf.nn.dropout(inputs, rate=self.rate)
-        return inputs
+        return tf.nn.dropout(inputs, rate=self.rate) if training else inputs
 
 
 class MLPWithDropout(keras.layers.Layer):

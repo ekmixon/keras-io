@@ -142,27 +142,24 @@ class MelSpec(layers.Layer):
         )
 
     def call(self, audio, training=True):
-        # We will only perform the transformation during training.
-        if training:
-            # Taking the Short Time Fourier Transform. Ensure that the audio is padded.
-            # In the paper, the STFT output is padded using the 'REFLECT' strategy.
-            stft = tf.signal.stft(
-                tf.squeeze(audio, -1),
-                self.frame_length,
-                self.frame_step,
-                self.fft_length,
-                pad_end=True,
-            )
-
-            # Taking the magnitude of the STFT output
-            magnitude = tf.abs(stft)
-
-            # Multiplying the Mel-filterbank with the magnitude and scaling it using the db scale
-            mel = tf.matmul(tf.square(magnitude), self.mel_filterbank)
-            log_mel_spec = tfio.audio.dbscale(mel, top_db=80)
-            return log_mel_spec
-        else:
+        if not training:
             return audio
+        # Taking the Short Time Fourier Transform. Ensure that the audio is padded.
+        # In the paper, the STFT output is padded using the 'REFLECT' strategy.
+        stft = tf.signal.stft(
+            tf.squeeze(audio, -1),
+            self.frame_length,
+            self.frame_step,
+            self.fft_length,
+            pad_end=True,
+        )
+
+        # Taking the magnitude of the STFT output
+        magnitude = tf.abs(stft)
+
+        # Multiplying the Mel-filterbank with the magnitude and scaling it using the db scale
+        mel = tf.matmul(tf.square(magnitude), self.mel_filterbank)
+        return tfio.audio.dbscale(mel, top_db=80)
 
     def get_config(self):
         config = super(MelSpec, self).get_config()
@@ -228,9 +225,7 @@ def residual_stack(input, filters):
     c6 = addon_layers.WeightNormalization(
         layers.Conv1D(filters, 3, dilation_rate=1, padding="same"), data_init=False
     )(lrelu5)
-    add3 = layers.Add()([c6, add2])
-
-    return add3
+    return layers.Add()([c6, add2])
 
 
 """
@@ -257,8 +252,7 @@ def conv_block(input, conv_dim, upsampling_factor):
     )(input)
     lrelu1 = layers.LeakyReLU()(conv_t)
     res_stack = residual_stack(lrelu1, conv_dim)
-    lrelu2 = layers.LeakyReLU()(res_stack)
-    return lrelu2
+    return layers.LeakyReLU()(res_stack)
 
 
 """
@@ -394,9 +388,10 @@ def generator_loss(real_pred, fake_pred):
     Returns:
         Loss for the generator.
     """
-    gen_loss = []
-    for i in range(len(fake_pred)):
-        gen_loss.append(mse(tf.ones_like(fake_pred[i][-1]), fake_pred[i][-1]))
+    gen_loss = [
+        mse(tf.ones_like(fake_pred[i][-1]), fake_pred[i][-1])
+        for i in range(len(fake_pred))
+    ]
 
     return tf.reduce_mean(gen_loss)
 
@@ -413,8 +408,10 @@ def feature_matching_loss(real_pred, fake_pred):
     """
     fm_loss = []
     for i in range(len(fake_pred)):
-        for j in range(len(fake_pred[i]) - 1):
-            fm_loss.append(mae(real_pred[i][j], fake_pred[i][j]))
+        fm_loss.extend(
+            mae(real_pred[i][j], fake_pred[i][j])
+            for j in range(len(fake_pred[i]) - 1)
+        )
 
     return tf.reduce_mean(fm_loss)
 
@@ -434,9 +431,7 @@ def discriminator_loss(real_pred, fake_pred):
         real_loss.append(mse(tf.ones_like(real_pred[i][-1]), real_pred[i][-1]))
         fake_loss.append(mse(tf.zeros_like(fake_pred[i][-1]), fake_pred[i][-1]))
 
-    # Calculating the final discriminator loss after scaling
-    disc_loss = tf.reduce_mean(real_loss) + tf.reduce_mean(fake_loss)
-    return disc_loss
+    return tf.reduce_mean(real_loss) + tf.reduce_mean(fake_loss)
 
 
 """

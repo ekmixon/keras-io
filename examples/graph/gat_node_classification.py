@@ -221,12 +221,11 @@ class GraphAttention(layers.Layer):
 
         # (3) Gather node states of neighbors, apply attention scores and aggregate
         node_features_neighbors = tf.gather(node_features_transformed, edges[:, 1])
-        out = tf.math.unsorted_segment_sum(
+        return tf.math.unsorted_segment_sum(
             data=node_features_neighbors * attention_scores_norm[:, tf.newaxis],
             segment_ids=edges[:, 0],
             num_segments=tf.shape(node_features)[0],
         )
-        return out
 
 
 class MultiHeadGraphAttention(layers.Layer):
@@ -290,8 +289,7 @@ class GraphAttentionNetwork(keras.Model):
         x = self.preprocess(node_features)
         for attention_layer in self.attention_layers:
             x = attention_layer([x, edges]) + x
-        outputs = self.output_layer(x)
-        return outputs
+        return self.output_layer(x)
 
     def train_step(self, data):
         indices, labels = data

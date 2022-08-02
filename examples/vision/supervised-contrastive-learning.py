@@ -84,8 +84,7 @@ def create_encoder():
     inputs = keras.Input(shape=input_shape)
     augmented = data_augmentation(inputs)
     outputs = resnet(augmented)
-    model = keras.Model(inputs=inputs, outputs=outputs, name="cifar10-encoder")
-    return model
+    return keras.Model(inputs=inputs, outputs=outputs, name="cifar10-encoder")
 
 
 encoder = create_encoder()
@@ -183,10 +182,11 @@ def add_projection_head(encoder):
     inputs = keras.Input(shape=input_shape)
     features = encoder(inputs)
     outputs = layers.Dense(projection_units, activation="relu")(features)
-    model = keras.Model(
-        inputs=inputs, outputs=outputs, name="cifar-encoder_with_projection-head"
+    return keras.Model(
+        inputs=inputs,
+        outputs=outputs,
+        name="cifar-encoder_with_projection-head",
     )
-    return model
 
 
 """

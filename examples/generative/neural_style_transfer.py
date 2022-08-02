@@ -116,8 +116,7 @@ image locally-coherent
 def gram_matrix(x):
     x = tf.transpose(x, (2, 0, 1))
     features = tf.reshape(x, (tf.shape(x)[0], -1))
-    gram = tf.matmul(features, tf.transpose(features))
-    return gram
+    return tf.matmul(features, tf.transpose(features))
 
 
 # The "style loss" is designed to maintain
@@ -242,6 +241,7 @@ resulting image every 100 iterations.
 We decay the learning rate by 0.96 every 100 steps.
 """
 
+
 optimizer = keras.optimizers.SGD(
     keras.optimizers.schedules.ExponentialDecay(
         initial_learning_rate=100.0, decay_steps=100, decay_rate=0.96
@@ -268,4 +268,4 @@ for i in range(1, iterations + 1):
 After 4000 iterations, you get the following result:
 """
 
-display(Image(result_prefix + "_at_iteration_4000.png"))
+display(Image(f"{result_prefix}_at_iteration_4000.png"))

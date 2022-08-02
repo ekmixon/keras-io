@@ -114,12 +114,13 @@ class SquadExample:
         tokenized_context = tokenizer.encode(context)
 
         # Find tokens that were created from answer characters
-        ans_token_idx = []
-        for idx, (start, end) in enumerate(tokenized_context.offsets):
-            if sum(is_char_in_ans[start:end]) > 0:
-                ans_token_idx.append(idx)
+        ans_token_idx = [
+            idx
+            for idx, (start, end) in enumerate(tokenized_context.offsets)
+            if sum(is_char_in_ans[start:end]) > 0
+        ]
 
-        if len(ans_token_idx) == 0:
+        if not ans_token_idx:
             self.skip = True
             return
 

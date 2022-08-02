@@ -168,12 +168,13 @@ def gradient_ascent_loop(img, iterations, learning_rate, max_loss=None):
 ## Run the training loop, iterating over different octaves
 """
 
+
 original_img = preprocess_image(base_image_path)
 original_shape = original_img.shape[1:3]
 
 successive_shapes = [original_shape]
 for i in range(1, num_octave):
-    shape = tuple([int(dim / (octave_scale ** i)) for dim in original_shape])
+    shape = tuple(int(dim / (octave_scale ** i)) for dim in original_shape)
     successive_shapes.append(shape)
 successive_shapes = successive_shapes[::-1]
 shrunk_original_img = tf.image.resize(original_img, successive_shapes[0])
@@ -192,10 +193,13 @@ for i, shape in enumerate(successive_shapes):
     img += lost_detail
     shrunk_original_img = tf.image.resize(original_img, shape)
 
-keras.preprocessing.image.save_img(result_prefix + ".png", deprocess_image(img.numpy()))
+keras.preprocessing.image.save_img(
+    f"{result_prefix}.png", deprocess_image(img.numpy())
+)
+
 
 """
 Display the result.
 """
 
-display(Image(result_prefix + ".png"))
+display(Image(f"{result_prefix}.png"))

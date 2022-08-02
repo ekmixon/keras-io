@@ -267,13 +267,12 @@ For the purpose of this example, we will use the standard ResNet50V2
 
 
 def get_resnetv2():
-    resnet_v2 = keras.applications.ResNet50V2(
+    return keras.applications.ResNet50V2(
         weights=None,
         input_shape=(RESIZE, RESIZE, 3),
         classes=102,
         classifier_activation="linear",
     )
-    return resnet_v2
 
 
 get_resnetv2().count_params()
@@ -356,8 +355,7 @@ class Distiller(tf.keras.Model):
         # Report progress
         self.loss_tracker.update_state(distillation_loss)
         self.compiled_metrics.update_state(y, student_predictions)
-        results = {m.name: m.result() for m in self.metrics}
-        return results
+        return {m.name: m.result() for m in self.metrics}
 
 
 """

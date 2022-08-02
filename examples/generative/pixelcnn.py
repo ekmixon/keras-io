@@ -176,8 +176,9 @@ def deprocess_image(x):
 # Iterate over the generated images and plot them with matplotlib.
 for i, pic in enumerate(pixels):
     keras.preprocessing.image.save_img(
-        "generated_image_{}.png".format(i), deprocess_image(np.squeeze(pic, -1))
+        f"generated_image_{i}.png", deprocess_image(np.squeeze(pic, -1))
     )
+
 
 display(Image("generated_image_0.png"))
 display(Image("generated_image_1.png"))

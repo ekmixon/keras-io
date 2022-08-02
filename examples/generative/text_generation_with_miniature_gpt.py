@@ -141,6 +141,7 @@ Download the IMDB dataset and combine training and validation sets for a text
 generation task.
 """
 
+
 """shell
 curl -O https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
 tar -xf aclImdb_v1.tar.gz
@@ -160,9 +161,7 @@ directories = [
     "aclImdb/test/neg",
 ]
 for dir in directories:
-    for f in os.listdir(dir):
-        filenames.append(os.path.join(dir, f))
-
+    filenames.extend(os.path.join(dir, f) for f in os.listdir(dir))
 print(f"{len(filenames)} files")
 
 # Create a dataset from text files
@@ -246,7 +245,7 @@ class TextGenerator(keras.callbacks.Callback):
         return self.index_to_word[number]
 
     def on_epoch_end(self, epoch, logs=None):
-        start_tokens = [_ for _ in self.start_tokens]
+        start_tokens = list(self.start_tokens)
         if (epoch + 1) % self.print_every != 0:
             return
         num_tokens_generated = 0
@@ -274,10 +273,7 @@ class TextGenerator(keras.callbacks.Callback):
 
 
 # Tokenize starting prompt
-word_to_index = {}
-for index, word in enumerate(vocab):
-    word_to_index[word] = index
-
+word_to_index = {word: index for index, word in enumerate(vocab)}
 start_prompt = "this movie is"
 start_tokens = [word_to_index.get(_, 1) for _ in start_prompt.split()]
 num_tokens_generated = 40
